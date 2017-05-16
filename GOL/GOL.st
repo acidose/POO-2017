@@ -59,14 +59,24 @@ test05DeadCellWithThreeAliveNeighResurrects
 	
 	self deny:  (gameOfLife isDeadAt: 1@1).! !
 
-!GOLTest methodsFor: 'as yet unclassified' stamp: 'PR 5/14/2017 21:46:17'!
-test06CreateCellOutsideBounds
-	self should: [self createGOL: {2@0. 1@0. 1@4.} withBoardSize: 3@3. ]
-	raise: Error - MessageNotUnderstood
-	withExceptionDo: [:anError | self assert: anError messageText equals: GameOfLife cellOutOfBoardBoundsException]	 ! !
+!GOLTest methodsFor: 'as yet unclassified' stamp: 'PR 5/16/2017 18:48:45'!
+test06CreateCellOutsideBoundsXPositive
+	self assertOutsideBoundsRaisesOn: [self createGOL: {2@0. 1@0. 4@2.} withBoardSize: 3@3. ].! !
 
-!GOLTest methodsFor: 'as yet unclassified' stamp: 'PR 5/14/2017 21:56:16'!
-test07EveryoneDeadEveryoneStaysDead
+!GOLTest methodsFor: 'as yet unclassified' stamp: 'PR 5/16/2017 18:49:11'!
+test07CreateCellOutsideBoundsXNegative
+	self assertOutsideBoundsRaisesOn: [self createGOL: {2@0. 1@0. -1@2.} withBoardSize: 3@3. ].! !
+
+!GOLTest methodsFor: 'as yet unclassified' stamp: 'PR 5/16/2017 18:49:30'!
+test08CreateCellOutsideBoundsYPositive
+	self assertOutsideBoundsRaisesOn: [self createGOL: {2@0. 1@0. -1@2.} withBoardSize: 3@3. ].! !
+
+!GOLTest methodsFor: 'as yet unclassified' stamp: 'PR 5/16/2017 18:49:42'!
+test09CreateCellOutsideBoundsYNegative
+	self assertOutsideBoundsRaisesOn: [self createGOL: {2@0. 1@0. 1@-4.} withBoardSize: 3@3. ].! !
+
+!GOLTest methodsFor: 'as yet unclassified' stamp: 'PR 5/16/2017 18:38:19'!
+test10EveryoneDeadEveryoneStaysDead
 	| gameOfLife |
 	
 	gameOfLife := self createGOL: {} withBoardSize: 3@3.
@@ -74,26 +84,8 @@ test07EveryoneDeadEveryoneStaysDead
 	
 	self assert:  (gameOfLife aliveCells isEmpty).! !
 
-!GOLTest methodsFor: 'as yet unclassified' stamp: 'PR 5/15/2017 01:02:41'!
-test08DeadCellsWithOneAliveNeighStaysDead
-	| gameOfLife |
-	
-	gameOfLife := self createGOL: { 0@0.} withBoardSize: 3@3.
-	gameOfLife nextGeneration.
-	
-	self assert:  (gameOfLife aliveCells isEmpty).! !
-
-!GOLTest methodsFor: 'as yet unclassified' stamp: 'PR 5/15/2017 01:48:40'!
-test09DeadCellsWithTwoAliveNeighStaysDead
-	| gameOfLife |
-	
-	gameOfLife := self createGOL: { 0@0. 0@1.} withBoardSize: 3@3.
-	gameOfLife nextGeneration.
-	
-	self assert:  (gameOfLife aliveCells isEmpty).! !
-
-!GOLTest methodsFor: 'as yet unclassified' stamp: 'PR 5/15/2017 02:05:16'!
-test10AllAliveThenCornersSurvive
+!GOLTest methodsFor: 'as yet unclassified' stamp: 'PR 5/16/2017 18:40:20'!
+test11AllAliveThenCornersSurvive
 	| gameOfLife |
 	
 	gameOfLife := self createGOL: { 0@0. 0@1. 0@2. 1@0. 1@1. 1@2. 1@2. 2@0. 2@1. 2@2.} withBoardSize: 3@3.
@@ -104,14 +96,40 @@ test10AllAliveThenCornersSurvive
 	self assert:  (gameOfLife isAliveAt: 0@2).
 	self assert:  (gameOfLife isAliveAt: 2@0).! !
 
-!GOLTest methodsFor: 'as yet unclassified' stamp: 'PR 5/15/2017 19:38:31'!
-test11DeadCellWithMoreThanThreeAliveNeighStaysDead
+!GOLTest methodsFor: 'as yet unclassified' stamp: 'PR 5/16/2017 18:39:12'!
+test12DeadCellsWithOneAliveNeighStaysDead
+	| gameOfLife |
+	
+	gameOfLife := self createGOL: { 0@0.} withBoardSize: 3@3.
+	gameOfLife nextGeneration.
+	
+	self assert:  (gameOfLife aliveCells isEmpty).! !
+
+!GOLTest methodsFor: 'as yet unclassified' stamp: 'PR 5/16/2017 18:39:29'!
+test13DeadCellsWithTwoAliveNeighStaysDead
+	| gameOfLife |
+	
+	gameOfLife := self createGOL: { 0@0. 0@1.} withBoardSize: 3@3.
+	gameOfLife nextGeneration.
+	
+	self assert:  (gameOfLife aliveCells isEmpty).! !
+
+!GOLTest methodsFor: 'as yet unclassified' stamp: 'PR 5/16/2017 18:40:03'!
+test14DeadCellWithMoreThanThreeAliveNeighStaysDead
 	| gameOfLife |
 	
 	gameOfLife := self createGOL: { 0@0. 2@2. 0@2. 2@0.} withBoardSize: 3@3.
 	gameOfLife nextGeneration.
 	
 	self assert:  (gameOfLife isDeadAt: 1@1).! !
+
+
+!GOLTest methodsFor: 'asserting' stamp: 'PR 5/16/2017 18:46:37'!
+assertOutsideBoundsRaisesOn: aBlock
+
+	self should: aBlock
+	raise: Error - MessageNotUnderstood
+	withExceptionDo: [:anError | self assert: anError messageText equals: GameOfLife cellOutOfBoardBoundsException]! !
 
 
 !classDefinition: #GameOfLife category: #GOL!
