@@ -1,6 +1,95 @@
+!classDefinition: #Distance category: #'Distance-Solution'!
+Magnitude subclass: #Distance
+	instanceVariableNames: 'unit amount'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Distance-Solution'!
+
+!Distance methodsFor: 'intervals' stamp: 'PR 5/30/2017 17:47:25'!
+to: aDistance 
+	^DistanceInterval from: self to: aDistance.! !
+
+!Distance methodsFor: 'intervals' stamp: 'PR 5/30/2017 18:17:01'!
+to: aDistance by: aDistance2 
+	^DistanceInterval from: self to: aDistance by: aDistance2.! !
+
+
+!Distance methodsFor: 'arithmetic' stamp: 'PR 6/3/2017 20:27:15'!
+* aSmallInteger 
+	^Distance createWithValue: amount*aSmallInteger withUnit: self unit.! !
+
+!Distance methodsFor: 'arithmetic' stamp: 'PR 6/1/2017 21:14:05'!
++ aDistance 
+	^Distance createWithValue: ((amount*unit ratio) + (aDistance amount*aDistance unit ratio))/ unit ratio withUnit: self unit. ! !
+
+!Distance methodsFor: 'arithmetic' stamp: 'PR 6/1/2017 21:14:11'!
+- aDistance 
+	^Distance createWithValue: ((amount*unit ratio) - (aDistance amount*aDistance unit ratio))/ unit ratio withUnit: self unit. ! !
+
+!Distance methodsFor: 'arithmetic' stamp: 'PR 6/3/2017 20:27:21'!
+/ aSmallInteger 
+	^Distance createWithValue: amount/aSmallInteger withUnit: unit. ! !
+
+
+!Distance methodsFor: 'comparing' stamp: 'PR 6/1/2017 21:14:16'!
+< aDistance 
+	^ (amount * unit ratio) < (aDistance amount * aDistance unit ratio).! !
+
+!Distance methodsFor: 'comparing' stamp: 'PR 6/1/2017 21:14:21'!
+= aDistance
+	^(amount*unit ratio) = (aDistance amount * aDistance unit ratio).! !
+
+
+!Distance methodsFor: 'converting' stamp: 'PR 5/30/2017 17:04:10'!
+adaptToNumber: aSmallInteger andSend: aSymbol 
+	^self perform: aSymbol with: aSmallInteger.! !
+
+!Distance methodsFor: 'converting' stamp: 'PR 6/3/2017 20:42:47'!
+convertTo: anUnit
+	^Distance createWithValue:  (amount * unit ratio) / anUnit ratio withUnit: anUnit. ! !
+
+
+!Distance methodsFor: 'initialization' stamp: 'PR 6/1/2017 23:01:27'!
+printString
+	| distanceAsString |
+	distanceAsString := amount printString, ' ',unit printString.
+	
+	(amount > 1) ifTrue: [distanceAsString := distanceAsString, 's'].
+	
+	^distanceAsString.! !
+
+!Distance methodsFor: 'initialization' stamp: 'PR 6/1/2017 21:20:53'!
+withAmount: anAmount withUnit: aUnit
+	amount := anAmount.
+	unit := aUnit.! !
+
+
+!Distance methodsFor: 'inspecting' stamp: 'PR 6/1/2017 21:12:13'!
+amount
+	^amount.! !
+
+!Distance methodsFor: 'inspecting' stamp: 'PR 6/3/2017 20:46:55'!
+lesserUnit: aDistance 
+(self unit ratio < aDistance unit ratio)ifTrue: [^self unit ] ifFalse: [^aDistance unit ]. ! !
+
+!Distance methodsFor: 'inspecting' stamp: 'PR 5/29/2017 21:03:25'!
+unit
+	^unit.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Distance class' category: #'Distance-Solution'!
+Distance class
+	instanceVariableNames: 'unit value'!
+
+!Distance class methodsFor: 'as yet unclassified' stamp: 'PR 6/1/2017 21:22:09'!
+createWithValue: anAmount withUnit: aUnit
+	^self new withAmount: anAmount withUnit: aUnit.! !
+
+
 !classDefinition: #DistanceTest category: #'Distance-Solution'!
 TestCase subclass: #DistanceTest
-	instanceVariableNames: 'meters centimeters kilometers oneMeter twoMeters threeMeters fourMeters fiveMeters oneThousandMeters fiveCentimeters oneHundredCentimeters oneKilometer oneCentimeter twoKilometers twoCentimeters threeCentimeters anotherMeter anotherTwoKilometers anotherThreeCentimeters oneFifthMeter twentyCentimeters zeroMeters minusOneKilometer tenMeters fifteenCentimeters'
+	instanceVariableNames: 'meters centimeters kilometers oneMeter twoMeters threeMeters fourMeters fiveMeters oneThousandMeters fiveCentimeters oneHundredCentimeters oneKilometer oneCentimeter twoKilometers twoCentimeters threeCentimeters anotherMeter anotherTwoKilometers anotherThreeCentimeters oneFifthMeter twentyCentimeters zeroMeters minusOneKilometer tenMeters fifteenCentimeters decameter decimeter oneDecimeter oneDecameter'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Distance-Solution'!
@@ -24,13 +113,13 @@ test02CanCreateFiveCentimeters
 	self assert: fiveCentimeters unit equals: centimeters. 
 ! !
 
-!DistanceTest methodsFor: 'testing' stamp: 'PR 6/1/2017 21:15:34'!
+!DistanceTest methodsFor: 'testing' stamp: 'PR 6/3/2017 20:28:41'!
 test03CanCreateThreeKilometers
 	| kilometers threeK |
 	kilometers := Unit createKilometer.
 	threeK := Distance createWithValue: 3 withUnit: kilometers.
 	
-	self assert: threeK value equals: 3.
+	self assert: threeK amount equals: 3.
 	self assert: threeK unit equals: kilometers. ! !
 
 !DistanceTest methodsFor: 'testing' stamp: 'PR 5/30/2017 01:27:27'!
@@ -121,10 +210,96 @@ test17CanIterateIntervalBetweenTwoDistances
 	
 	! !
 
+!DistanceTest methodsFor: 'testing' stamp: 'PR 6/3/2017 21:00:02'!
+test18CanDoItIntervalBetweenTwoDistancesWithIdentiqueUnit
+	| aDistanceInterval aDistanceIntervalComparate |
+	
+	aDistanceInterval := oneMeter to: fourMeters.
+	aDistanceIntervalComparate := Interval from: 1 to: 4. 
 
-!DistanceTest methodsFor: 'initialization' stamp: 'PR 6/1/2017 20:30:52'!
+	
+	self assert: aDistanceIntervalComparate = aDistanceInterval interval .
+	self assert: meters = aDistanceInterval  unit .
+	
+	! !
+
+!DistanceTest methodsFor: 'testing' stamp: 'PR 6/3/2017 21:06:52'!
+test19CanDoItIntervalBetweenTwoDistancesWithDifferentUnit
+    | aDistanceInterval aDistanceIntervalOneCentimeterToOneMeter intervalComparate intervalComparateOneCentimetersToOneMeter|
+    
+    aDistanceInterval := oneMeter to: oneKilometer .
+    aDistanceIntervalOneCentimeterToOneMeter := oneCentimeter to: oneMeter.
+    
+    intervalComparate := Interval from: 1 to: 1000.
+    
+    intervalComparateOneCentimetersToOneMeter  := Interval from: 1 to: 100. 
+         
+    self assert: intervalComparate = aDistanceInterval interval.
+    self assert: meters = aDistanceInterval unit. 
+    self assert: intervalComparateOneCentimetersToOneMeter = aDistanceIntervalOneCentimeterToOneMeter interval.
+    self assert: centimeters = aDistanceIntervalOneCentimeterToOneMeter unit.
+	! !
+
+!DistanceTest methodsFor: 'testing' stamp: 'PR 6/3/2017 21:07:24'!
+test20CanDoItIntervalNegativeBetweenTwoDistances
+    | aDistanceIntervalOneKilometerToOneMeter aDistanceIntervalOneCentimeterToOneMeter intervalComparate intervalComparateOneCentimetersToOneMeter|
+    
+    aDistanceIntervalOneKilometerToOneMeter := oneKilometer to: oneMeter .
+    aDistanceIntervalOneCentimeterToOneMeter := oneMeter to: oneCentimeter .
+    
+    intervalComparate := Interval from: 1000 to: 1.
+    
+    intervalComparateOneCentimetersToOneMeter  := Interval from: 100 to: 1. 
+         
+    self assert: intervalComparate = aDistanceIntervalOneKilometerToOneMeter interval.
+    self assert: meters = aDistanceIntervalOneKilometerToOneMeter unit.
+     
+    self assert: intervalComparateOneCentimetersToOneMeter = aDistanceIntervalOneCentimeterToOneMeter interval.
+    self assert: centimeters = aDistanceIntervalOneCentimeterToOneMeter unit.
+	! !
+
+!DistanceTest methodsFor: 'testing' stamp: 'PR 6/3/2017 21:07:51'!
+test21CanDoItIntervalWithStepAsParameterSmallestUnit
+    | aDistanceIntervalOneKilometerToOneMeter aDistanceIntervalOneCentimeterToOneMeter intervalComparate intervalComparateOneCentimetersToOneMeter|
+    
+    aDistanceIntervalOneKilometerToOneMeter := oneMeter to: oneKilometer by: oneMeter.
+    aDistanceIntervalOneCentimeterToOneMeter := oneCentimeter to: oneMeter by: oneCentimeter.
+    
+    intervalComparate := Interval from: 1 to: 1000.
+    
+    intervalComparateOneCentimetersToOneMeter  := Interval from: 1 to: 100. 
+         
+    self assert: intervalComparate = aDistanceIntervalOneKilometerToOneMeter interval.
+    self assert: meters = aDistanceIntervalOneKilometerToOneMeter unit.
+     
+    self assert: intervalComparateOneCentimetersToOneMeter = aDistanceIntervalOneCentimeterToOneMeter interval.
+    self assert: centimeters = aDistanceIntervalOneCentimeterToOneMeter unit.
+! !
+
+!DistanceTest methodsFor: 'testing' stamp: 'PR 6/3/2017 21:16:22'!
+test22CanDoItIntervalWithStepAsParameterIntermediateUnit
+    | aDistanceIntervalOneKilometerToOneMeter aDistanceIntervalOneCentimeterToOneMeter intervalComparate intervalComparateOneCentimetersToOneMeter |
+    
+    aDistanceIntervalOneKilometerToOneMeter := oneMeter to: oneKilometer by: oneDecameter .
+    aDistanceIntervalOneCentimeterToOneMeter := oneCentimeter to: oneMeter by: oneDecimeter.
+    
+    intervalComparate := Interval from: 1/10 to: 100 by: 1.
+    
+    intervalComparateOneCentimetersToOneMeter  := Interval from: 1/10 to: 10 by:1. 
+         
+    self assert: intervalComparate = aDistanceIntervalOneKilometerToOneMeter interval.
+    self assert: decameter = aDistanceIntervalOneKilometerToOneMeter unit.
+     
+    self assert: intervalComparateOneCentimetersToOneMeter = aDistanceIntervalOneCentimeterToOneMeter interval.
+    self assert: decimeter = aDistanceIntervalOneCentimeterToOneMeter unit.
+! !
+
+
+!DistanceTest methodsFor: 'initialization' stamp: 'PR 6/3/2017 21:11:55'!
 setUp
+	decameter := Unit createDecameter.
 	meters := Unit createMeter.
+	decimeter := Unit createDecimeter.
 	centimeters := Unit createCentimeter.
 	kilometers := Unit createKilometer.
 	
@@ -151,98 +326,15 @@ setUp
 	oneKilometer := Distance createWithValue: 1 withUnit: kilometers.
 	twoKilometers := Distance createWithValue: 2 withUnit: kilometers.
 	anotherTwoKilometers := Distance createWithValue: 2 withUnit: kilometers. 
-	 ! !
+	 
+	oneDecimeter := Distance createWithValue: 1 withUnit: decimeter.
+	oneDecameter := Distance createWithValue: 1 withUnit: decameter.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'DistanceTest class' category: #'Distance-Solution'!
 DistanceTest class
 	instanceVariableNames: 'meters centimeters fiveCentimeters fiveMeters fourMeters kilometers oneHundredCentimeters oneKilometer oneMeter oneThousandMeters threeMeters twoMeters'!
-
-
-!classDefinition: #Distance category: #'Distance-Solution'!
-Object subclass: #Distance
-	instanceVariableNames: 'unit amount'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Distance-Solution'!
-
-!Distance methodsFor: 'intervals' stamp: 'PR 5/30/2017 17:47:25'!
-to: aDistance 
-	^DistanceInterval from: self to: aDistance.! !
-
-!Distance methodsFor: 'intervals' stamp: 'PR 5/30/2017 18:17:01'!
-to: aDistance by: aDistance2 
-	^DistanceInterval from: self to: aDistance by: aDistance2.! !
-
-
-!Distance methodsFor: 'arithmetic' stamp: 'PR 5/30/2017 17:02:52'!
-* aSmallInteger 
-	^Distance createWithValue: value*aSmallInteger withUnit: self unit.! !
-
-!Distance methodsFor: 'arithmetic' stamp: 'PR 6/1/2017 21:14:05'!
-+ aDistance 
-	^Distance createWithValue: ((amount*unit ratio) + (aDistance amount*aDistance unit ratio))/ unit ratio withUnit: self unit. ! !
-
-!Distance methodsFor: 'arithmetic' stamp: 'PR 6/1/2017 21:14:11'!
-- aDistance 
-	^Distance createWithValue: ((amount*unit ratio) - (aDistance amount*aDistance unit ratio))/ unit ratio withUnit: self unit. ! !
-
-!Distance methodsFor: 'arithmetic' stamp: 'PR 5/30/2017 17:14:26'!
-/ aSmallInteger 
-	^Distance createWithValue: value/aSmallInteger withUnit: unit. ! !
-
-
-!Distance methodsFor: 'comparing' stamp: 'PR 6/1/2017 21:14:16'!
-< aDistance 
-	^ (amount * unit ratio) < (aDistance amount * aDistance unit ratio).! !
-
-!Distance methodsFor: 'comparing' stamp: 'PR 6/1/2017 21:14:21'!
-= aDistance
-	^(amount*unit ratio) = (aDistance amount * aDistance unit ratio).! !
-
-!Distance methodsFor: 'comparing' stamp: 'PR 6/1/2017 21:14:31'!
-> aDistance 
-	^(amount*unit ratio) > (aDistance amount*aDistance unit ratio).! !
-
-
-!Distance methodsFor: 'converting' stamp: 'PR 5/30/2017 17:04:10'!
-adaptToNumber: aSmallInteger andSend: aSymbol 
-	^self perform: aSymbol with: aSmallInteger.! !
-
-
-!Distance methodsFor: 'initialization' stamp: 'PR 6/1/2017 23:01:27'!
-printString
-	| distanceAsString |
-	distanceAsString := amount printString, ' ',unit printString.
-	
-	(amount > 1) ifTrue: [distanceAsString := distanceAsString, 's'].
-	
-	^distanceAsString.! !
-
-!Distance methodsFor: 'initialization' stamp: 'PR 6/1/2017 21:20:53'!
-withAmount: anAmount withUnit: aUnit
-	amount := anAmount.
-	unit := aUnit.! !
-
-
-!Distance methodsFor: 'inspecting' stamp: 'PR 6/1/2017 21:12:13'!
-amount
-	^amount.! !
-
-!Distance methodsFor: 'inspecting' stamp: 'PR 5/29/2017 21:03:25'!
-unit
-	^unit.! !
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'Distance class' category: #'Distance-Solution'!
-Distance class
-	instanceVariableNames: 'unit value'!
-
-!Distance class methodsFor: 'as yet unclassified' stamp: 'PR 6/1/2017 21:22:09'!
-createWithValue: anAmount withUnit: aUnit
-	^self new withAmount: anAmount withUnit: aUnit.! !
 
 
 !classDefinition: #DistanceFactory category: #'Distance-Solution'!
@@ -332,22 +424,46 @@ withInterval: anInterval withUnit: anUnit
 	interval := anInterval.
 	unit := anUnit.! !
 
+
+!DistanceInterval methodsFor: 'as yet unclassified' stamp: 'PR 6/3/2017 20:54:53'!
+interval
+
+	^interval ! !
+
+!DistanceInterval methodsFor: 'as yet unclassified' stamp: 'PR 6/3/2017 20:55:08'!
+unit
+
+	^unit ! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'DistanceInterval class' category: #'Distance-Solution'!
 DistanceInterval class
 	instanceVariableNames: ''!
 
-!DistanceInterval class methodsFor: 'as yet unclassified' stamp: 'PR 6/1/2017 21:12:48'!
+!DistanceInterval class methodsFor: 'as yet unclassified' stamp: 'PR 6/3/2017 20:50:35'!
 from: aDistance to: anotherDistance 
-	^self new withInterval: (Interval from: aDistance amount to: anotherDistance amount) withUnit: aDistance unit.! !
 
-!DistanceInterval class methodsFor: 'as yet unclassified' stamp: 'PR 6/1/2017 21:14:56'!
-from: aDistance to: aDistance2 by: aDistance3 
-	| anInterval |
-	anInterval := (aDistance amount*aDistance unit ratio) to: (aDistance2 amount*aDistance2 unit ratio) by: (aDistance3 amount*aDistance3 unit ratio).
+	|smallUnit aDistanceConvert anotherDistanceConvert|
+
 	
-	^self new withInterval: anInterval withUnit: aDistance3 unit.! !
+	smallUnit := aDistance lesserUnit: anotherDistance .
+	aDistanceConvert := aDistance convertTo: smallUnit .
+	anotherDistanceConvert := anotherDistance  convertTo: smallUnit .
+	
+	^self new withInterval: (Interval from: aDistanceConvert amount to: anotherDistanceConvert amount) withUnit: smallUnit.
+! !
+
+!DistanceInterval class methodsFor: 'as yet unclassified' stamp: 'PR 6/3/2017 20:53:40'!
+from: aDistance to: aDistance2 by: aDistance3 
+	
+	|aDistanceConvert aDistanceConvert2|
+	
+	aDistanceConvert := aDistance convertTo: aDistance3 unit .
+	aDistanceConvert2 := aDistance2 convertTo: aDistance3 unit .
+	
+	^self new withInterval: (Interval from: aDistanceConvert amount to: aDistanceConvert2 amount by: aDistance3 amount ) withUnit: aDistance3 unit .
+	! !
 
 
 !classDefinition: #Unit category: #'Distance-Solution'!
