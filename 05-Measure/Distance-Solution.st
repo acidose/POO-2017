@@ -35,9 +35,9 @@ to: aDistance by: aDistance2
 < aDistance 
 	^ (amount * unit ratio) < (aDistance amount * aDistance unit ratio).! !
 
-!Distance methodsFor: 'comparing' stamp: 'PR 6/1/2017 21:14:21'!
+!Distance methodsFor: 'comparing' stamp: 'Mirko 6/3/2017 22:48:25'!
 = aDistance
-	^(amount*unit ratio) = (aDistance amount * aDistance unit ratio).! !
+	^(aDistance isKindOf: self class) and: [(amount*unit ratio) = (aDistance amount * aDistance unit ratio)].! !
 
 
 !Distance methodsFor: 'converting' stamp: 'PR 5/30/2017 17:04:10'!
@@ -75,6 +75,17 @@ lesserUnit: aDistance
 !Distance methodsFor: 'inspecting' stamp: 'PR 5/29/2017 21:03:25'!
 unit
 	^unit.! !
+
+
+!Distance methodsFor: 'as yet unclassified' stamp: 'Mirko 6/3/2017 22:50:58'!
+hash
+	|hasher|
+	hasher := self convertTo: Unit createMeter.
+	^  hasher amount hash .! !
+
+!Distance methodsFor: 'as yet unclassified' stamp: 'Mirko 6/3/2017 22:53:11'!
+negated
+	^ Distance createWithValue: (amount * (-1)) withUnit: unit .! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -301,11 +312,11 @@ test22CanDoItIntervalWithStepAsParameterIntermediateUnit
 ! !
 
 
-!DistanceTest methodsFor: 'initialization' stamp: 'PR 6/3/2017 21:39:03'!
+!DistanceTest methodsFor: 'initialization' stamp: 'Mirko 6/3/2017 22:47:15'!
 setUp
 	factory := DistanceFactory new.
 		
-	oneFifthMeter := Distance createWithValue: 1/5 withUnit: meters. 
+	"oneFifthMeter := Distance createWithValue: 1/5 withUnit: meters. 
 	zeroMeters := Distance createWithValue: 0 withUnit: meters.
 	oneMeter := Distance createWithValue: 1 withUnit: meters.
 	anotherMeter := Distance createWithValue: 1 withUnit: meters.
@@ -330,7 +341,7 @@ setUp
 	anotherTwoKilometers := Distance createWithValue: 2 withUnit: kilometers. 
 	 
 	oneDecimeter := Distance createWithValue: 1 withUnit: decimeter.
-	oneDecameter := Distance createWithValue: 1 withUnit: decameter.! !
+	oneDecameter := Distance createWithValue: 1 withUnit: decameter."! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -473,16 +484,33 @@ do: aBlockClosure
 		aBlockClosure value: (self at:i )] ! !
 
 
+!DistanceInterval methodsFor: 'initialization' stamp: 'Mirko 6/3/2017 23:14:26'!
+size 
+
+	^interval size.! !
+
 !DistanceInterval methodsFor: 'initialization' stamp: 'PR 5/30/2017 17:49:20'!
 withInterval: anInterval withUnit: anUnit 
 	interval := anInterval.
 	unit := anUnit.! !
 
 
+!DistanceInterval methodsFor: 'as yet unclassified' stamp: 'Mirko 6/3/2017 23:08:04'!
+by
+	^ Distance createWithValue: ((interval at:2) - (interval at:1)) withUnit: unit.! !
+
+!DistanceInterval methodsFor: 'as yet unclassified' stamp: 'Mirko 6/3/2017 22:58:35'!
+from
+	^Distance createWithValue:   (interval at: 1) withUnit: unit .! !
+
 !DistanceInterval methodsFor: 'as yet unclassified' stamp: 'PR 6/3/2017 20:54:53'!
 interval
 
 	^interval ! !
+
+!DistanceInterval methodsFor: 'as yet unclassified' stamp: 'Mirko 6/3/2017 22:59:34'!
+to
+	^Distance createWithValue: (interval at:(interval size )) withUnit: unit .! !
 
 !DistanceInterval methodsFor: 'as yet unclassified' stamp: 'PR 6/3/2017 20:55:08'!
 unit
