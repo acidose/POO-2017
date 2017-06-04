@@ -89,7 +89,7 @@ createWithValue: anAmount withUnit: aUnit
 
 !classDefinition: #DistanceTest category: #'Distance-Solution'!
 TestCase subclass: #DistanceTest
-	instanceVariableNames: 'meters centimeters kilometers oneMeter twoMeters threeMeters fourMeters fiveMeters oneThousandMeters fiveCentimeters oneHundredCentimeters oneKilometer oneCentimeter twoKilometers twoCentimeters threeCentimeters anotherMeter anotherTwoKilometers anotherThreeCentimeters oneFifthMeter twentyCentimeters zeroMeters minusOneKilometer tenMeters fifteenCentimeters decameter decimeter oneDecimeter oneDecameter'
+	instanceVariableNames: 'factory'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Distance-Solution'!
@@ -122,187 +122,189 @@ test03CanCreateThreeKilometers
 	self assert: threeK amount equals: 3.
 	self assert: threeK unit equals: kilometers. ! !
 
-!DistanceTest methodsFor: 'testing' stamp: 'PR 5/30/2017 01:27:27'!
+!DistanceTest methodsFor: 'testing' stamp: 'PR 6/3/2017 21:48:11'!
 test04DistanceIsEqualToSameDistance
-	self assert: oneMeter = anotherMeter.
-	self assert: twoKilometers = anotherTwoKilometers.
-	self assert: threeCentimeters = anotherThreeCentimeters.! !
+	| anotherMeter anotherTwoKilometers anotherThreeCentimeters |
+	
+	anotherMeter := factory oneMeter copy.
+	anotherTwoKilometers := factory twoKilometers copy.
+	anotherThreeCentimeters := factory threeCentimeters copy.
+	
+	self assert: factory oneMeter = anotherMeter.
+	self assert: factory twoKilometers = anotherTwoKilometers.
+	self assert: factory threeCentimeters = anotherThreeCentimeters.! !
 
-!DistanceTest methodsFor: 'testing' stamp: 'PR 5/30/2017 01:28:21'!
+!DistanceTest methodsFor: 'testing' stamp: 'PR 6/3/2017 21:59:45'!
 test05DistanceIsEqualToSameDistanceInDifferentUnits
-	self assert: oneMeter = oneHundredCentimeters.
-	self assert: oneKilometer = oneThousandMeters.
-	self assert: twentyCentimeters = oneFifthMeter.! !
+	self assert: factory oneMeter = factory oneHundredCentimeters.
+	self assert: factory oneKilometer = factory oneThousandMeters.
+	self assert: factory twentyCentimeters = factory oneFifthMeter.! !
 
-!DistanceTest methodsFor: 'testing' stamp: 'PR 5/30/2017 01:34:32'!
+!DistanceTest methodsFor: 'testing' stamp: 'PR 6/3/2017 22:01:44'!
 test06AddTwoDistancesWithSameUnitCorrectly
-	self assert: oneMeter + fourMeters = fiveMeters.
-	self assert: twoCentimeters + oneCentimeter = threeCentimeters.
-	self assert: oneKilometer + oneKilometer = twoKilometers.! !
+	self assert: factory oneMeter + factory fourMeters = factory fiveMeters.
+	self assert: factory twoCentimeters + factory oneCentimeter = factory threeCentimeters.
+	self assert: factory oneKilometer + factory oneKilometer = factory twoKilometers.! !
 
-!DistanceTest methodsFor: 'testing' stamp: 'PR 5/30/2017 01:36:16'!
+!DistanceTest methodsFor: 'testing' stamp: 'PR 6/3/2017 22:03:04'!
 test07AddTwoDistancesWithDifferentUnitsCorrectly
-	self assert: oneMeter + oneHundredCentimeters = twoMeters.
-	self assert: oneThousandMeters + oneKilometer = twoKilometers.! !
+	self assert: factory oneMeter + factory oneHundredCentimeters = factory twoMeters.
+	self assert: factory oneThousandMeters + factory oneKilometer = factory twoKilometers.! !
 
-!DistanceTest methodsFor: 'testing' stamp: 'PR 5/30/2017 16:53:12'!
+!DistanceTest methodsFor: 'testing' stamp: 'PR 6/3/2017 22:03:36'!
 test08SubstractTwoDistancesWithSameUnitsCorrectly
-	self assert: oneMeter - oneMeter = zeroMeters.
-	self assert: threeCentimeters - oneCentimeter = twoCentimeters.
-	self assert: oneKilometer - twoKilometers = minusOneKilometer.! !
+	self assert: factory oneMeter - factory oneMeter = factory zeroMeters.
+	self assert: factory threeCentimeters - factory oneCentimeter = factory twoCentimeters.
+	self assert: factory oneKilometer - factory twoKilometers = factory minusOneKilometer.! !
 
-!DistanceTest methodsFor: 'testing' stamp: 'PR 5/30/2017 16:56:12'!
+!DistanceTest methodsFor: 'testing' stamp: 'PR 6/3/2017 22:04:27'!
 test09SubstractTwoDistancesWithDifferentUnitsCorrectly
-	self assert: oneMeter - oneHundredCentimeters = zeroMeters.
-	self assert: oneThousandMeters - twoKilometers = minusOneKilometer.! !
+	self assert: factory oneMeter - factory oneHundredCentimeters = factory zeroMeters.
+	self assert: factory oneThousandMeters - factory twoKilometers = factory minusOneKilometer.! !
 
-!DistanceTest methodsFor: 'testing' stamp: 'PR 5/30/2017 17:00:51'!
+!DistanceTest methodsFor: 'testing' stamp: 'PR 6/3/2017 22:05:09'!
 test10MultiplyDistanceByScalarCorrectly
-	self assert: oneMeter * 5 = fiveMeters.
-	self assert: oneKilometer * -1 = minusOneKilometer.
-	self assert: twoCentimeters * 10 = twentyCentimeters.! !
+	self assert: factory oneMeter * 5 = factory fiveMeters.
+	self assert: factory oneKilometer * -1 = factory minusOneKilometer.
+	self assert: factory twoCentimeters * 10 = factory twentyCentimeters.! !
 
-!DistanceTest methodsFor: 'testing' stamp: 'PR 5/30/2017 17:03:35'!
+!DistanceTest methodsFor: 'testing' stamp: 'PR 6/3/2017 22:05:23'!
 test11MultiplyScalarByDistanceCorrectly
-	self assert: 5 * oneMeter= fiveMeters.
-	self assert: -1 * oneKilometer = minusOneKilometer.
-	self assert: 10 * twoCentimeters = twentyCentimeters.! !
+	self assert: 5 * factory oneMeter= factory fiveMeters.
+	self assert: -1 * factory oneKilometer = factory minusOneKilometer.
+	self assert: 10 * factory twoCentimeters = factory twentyCentimeters.! !
 
-!DistanceTest methodsFor: 'testing' stamp: 'PR 5/30/2017 17:12:48'!
+!DistanceTest methodsFor: 'testing' stamp: 'PR 6/3/2017 22:05:37'!
 test12DivideDistanceByScalarCorrectly
-	self assert: fourMeters / 4 = oneMeter.
-	self assert: oneKilometer / -1 = minusOneKilometer.
-	self assert: twoCentimeters / (1/10) = twentyCentimeters.! !
+	self assert: factory fourMeters / 4 = factory oneMeter.
+	self assert: factory oneKilometer / -1 = factory minusOneKilometer.
+	self assert: factory twoCentimeters / (1/10) = factory twentyCentimeters.! !
 
-!DistanceTest methodsFor: 'testing' stamp: 'PR 5/30/2017 17:17:10'!
+!DistanceTest methodsFor: 'testing' stamp: 'PR 6/3/2017 22:05:49'!
 test13ADistanceIsGreaterThanAnotherDistanceWithSameUnit
-	self assert: oneMeter > zeroMeters.
-	self assert: threeCentimeters > oneCentimeter.
-	self assert: twoKilometers > minusOneKilometer.! !
+	self assert: factory oneMeter > factory zeroMeters.
+	self assert: factory threeCentimeters > factory oneCentimeter.
+	self assert: factory twoKilometers > factory minusOneKilometer.! !
 
-!DistanceTest methodsFor: 'testing' stamp: 'PR 5/30/2017 17:19:20'!
+!DistanceTest methodsFor: 'testing' stamp: 'PR 6/3/2017 22:06:02'!
 test14ADistanceIsGreaterThanAnotherDistanceWithDifferentUnit
-	self assert: oneMeter > oneCentimeter.
-	self assert: twoKilometers > oneThousandMeters.
-	self assert: threeCentimeters > minusOneKilometer.! !
+	self assert: factory oneMeter > factory oneCentimeter.
+	self assert: factory twoKilometers > factory oneThousandMeters.
+	self assert: factory threeCentimeters > factory minusOneKilometer.! !
 
-!DistanceTest methodsFor: 'testing' stamp: 'PR 5/30/2017 17:22:41'!
+!DistanceTest methodsFor: 'testing' stamp: 'PR 6/3/2017 22:06:16'!
 test15ADistanceIsLesserThanAnotherDistanceWithSameUnit
-	self assert: zeroMeters < oneMeter.
-	self assert: oneCentimeter < threeCentimeters.
-	self assert: minusOneKilometer < twoKilometers.! !
+	self assert: factory zeroMeters < factory oneMeter.
+	self assert: factory oneCentimeter < factory threeCentimeters.
+	self assert: factory minusOneKilometer < factory twoKilometers.! !
 
-!DistanceTest methodsFor: 'testing' stamp: 'PR 5/30/2017 17:21:57'!
+!DistanceTest methodsFor: 'testing' stamp: 'PR 6/3/2017 22:06:28'!
 test16ADistanceIsLesserThanAnotherDistanceWithDifferentUnit
-	self assert: oneCentimeter < oneMeter.
-	self assert: oneThousandMeters < twoKilometers.
-	self assert: minusOneKilometer < threeCentimeters.! !
+	self assert: factory oneCentimeter < factory oneMeter.
+	self assert: factory oneThousandMeters < factory twoKilometers.
+	self assert: factory minusOneKilometer < factory threeCentimeters.! !
 
-!DistanceTest methodsFor: 'testing' stamp: 'PR 5/30/2017 18:55:12'!
+!DistanceTest methodsFor: 'testing' stamp: 'PR 6/3/2017 22:06:56'!
 test17CanIterateIntervalBetweenTwoDistances
 	| aDistanceInterval sum |
-	aDistanceInterval := oneMeter to: fourMeters.
+	aDistanceInterval := factory oneMeter to: factory fourMeters.
 
-	sum := zeroMeters.
+	sum := factory zeroMeters.
 	aDistanceInterval do: [ :aDistance | sum := sum + aDistance ].
 	
-	self assert: sum = tenMeters.
+	self assert: sum = factory tenMeters.
 	
 	! !
 
-!DistanceTest methodsFor: 'testing' stamp: 'PR 6/3/2017 21:00:02'!
+!DistanceTest methodsFor: 'testing' stamp: 'PR 6/3/2017 22:15:55'!
 test18CanDoItIntervalBetweenTwoDistancesWithIdentiqueUnit
 	| aDistanceInterval aDistanceIntervalComparate |
 	
-	aDistanceInterval := oneMeter to: fourMeters.
+	aDistanceInterval := factory oneMeter to: factory fourMeters.
 	aDistanceIntervalComparate := Interval from: 1 to: 4. 
 
 	
 	self assert: aDistanceIntervalComparate = aDistanceInterval interval .
-	self assert: meters = aDistanceInterval  unit .
+	self assert: factory meter = aDistanceInterval  unit .
 	
 	! !
 
-!DistanceTest methodsFor: 'testing' stamp: 'PR 6/3/2017 21:06:52'!
+!DistanceTest methodsFor: 'testing' stamp: 'PR 6/3/2017 22:16:49'!
 test19CanDoItIntervalBetweenTwoDistancesWithDifferentUnit
     | aDistanceInterval aDistanceIntervalOneCentimeterToOneMeter intervalComparate intervalComparateOneCentimetersToOneMeter|
     
-    aDistanceInterval := oneMeter to: oneKilometer .
-    aDistanceIntervalOneCentimeterToOneMeter := oneCentimeter to: oneMeter.
+    aDistanceInterval := factory oneMeter to: factory oneKilometer .
+    aDistanceIntervalOneCentimeterToOneMeter := factory oneCentimeter to: factory oneMeter.
     
     intervalComparate := Interval from: 1 to: 1000.
     
     intervalComparateOneCentimetersToOneMeter  := Interval from: 1 to: 100. 
          
     self assert: intervalComparate = aDistanceInterval interval.
-    self assert: meters = aDistanceInterval unit. 
+    self assert: factory meter = aDistanceInterval unit. 
     self assert: intervalComparateOneCentimetersToOneMeter = aDistanceIntervalOneCentimeterToOneMeter interval.
-    self assert: centimeters = aDistanceIntervalOneCentimeterToOneMeter unit.
+    self assert: factory centimeter = aDistanceIntervalOneCentimeterToOneMeter unit.
 	! !
 
-!DistanceTest methodsFor: 'testing' stamp: 'PR 6/3/2017 21:07:24'!
+!DistanceTest methodsFor: 'testing' stamp: 'PR 6/3/2017 22:17:11'!
 test20CanDoItIntervalNegativeBetweenTwoDistances
     | aDistanceIntervalOneKilometerToOneMeter aDistanceIntervalOneCentimeterToOneMeter intervalComparate intervalComparateOneCentimetersToOneMeter|
     
-    aDistanceIntervalOneKilometerToOneMeter := oneKilometer to: oneMeter .
-    aDistanceIntervalOneCentimeterToOneMeter := oneMeter to: oneCentimeter .
+    aDistanceIntervalOneKilometerToOneMeter := factory oneKilometer to: factory oneMeter .
+    aDistanceIntervalOneCentimeterToOneMeter := factory oneMeter to: factory oneCentimeter .
     
     intervalComparate := Interval from: 1000 to: 1.
     
     intervalComparateOneCentimetersToOneMeter  := Interval from: 100 to: 1. 
          
     self assert: intervalComparate = aDistanceIntervalOneKilometerToOneMeter interval.
-    self assert: meters = aDistanceIntervalOneKilometerToOneMeter unit.
+    self assert: factory meter = aDistanceIntervalOneKilometerToOneMeter unit.
      
     self assert: intervalComparateOneCentimetersToOneMeter = aDistanceIntervalOneCentimeterToOneMeter interval.
-    self assert: centimeters = aDistanceIntervalOneCentimeterToOneMeter unit.
+    self assert: factory centimeter = aDistanceIntervalOneCentimeterToOneMeter unit.
 	! !
 
-!DistanceTest methodsFor: 'testing' stamp: 'PR 6/3/2017 21:07:51'!
+!DistanceTest methodsFor: 'testing' stamp: 'PR 6/3/2017 22:17:34'!
 test21CanDoItIntervalWithStepAsParameterSmallestUnit
     | aDistanceIntervalOneKilometerToOneMeter aDistanceIntervalOneCentimeterToOneMeter intervalComparate intervalComparateOneCentimetersToOneMeter|
     
-    aDistanceIntervalOneKilometerToOneMeter := oneMeter to: oneKilometer by: oneMeter.
-    aDistanceIntervalOneCentimeterToOneMeter := oneCentimeter to: oneMeter by: oneCentimeter.
+    aDistanceIntervalOneKilometerToOneMeter := factory oneMeter to: factory oneKilometer by: factory oneMeter.
+    aDistanceIntervalOneCentimeterToOneMeter := factory oneCentimeter to: factory oneMeter by: factory oneCentimeter.
     
     intervalComparate := Interval from: 1 to: 1000.
     
     intervalComparateOneCentimetersToOneMeter  := Interval from: 1 to: 100. 
          
     self assert: intervalComparate = aDistanceIntervalOneKilometerToOneMeter interval.
-    self assert: meters = aDistanceIntervalOneKilometerToOneMeter unit.
+    self assert: factory meter = aDistanceIntervalOneKilometerToOneMeter unit.
      
     self assert: intervalComparateOneCentimetersToOneMeter = aDistanceIntervalOneCentimeterToOneMeter interval.
-    self assert: centimeters = aDistanceIntervalOneCentimeterToOneMeter unit.
+    self assert: factory centimeter = aDistanceIntervalOneCentimeterToOneMeter unit.
 ! !
 
-!DistanceTest methodsFor: 'testing' stamp: 'PR 6/3/2017 21:16:22'!
+!DistanceTest methodsFor: 'testing' stamp: 'PR 6/3/2017 22:18:00'!
 test22CanDoItIntervalWithStepAsParameterIntermediateUnit
     | aDistanceIntervalOneKilometerToOneMeter aDistanceIntervalOneCentimeterToOneMeter intervalComparate intervalComparateOneCentimetersToOneMeter |
     
-    aDistanceIntervalOneKilometerToOneMeter := oneMeter to: oneKilometer by: oneDecameter .
-    aDistanceIntervalOneCentimeterToOneMeter := oneCentimeter to: oneMeter by: oneDecimeter.
+    aDistanceIntervalOneKilometerToOneMeter := factory oneMeter to: factory oneKilometer by: factory oneDecameter .
+    aDistanceIntervalOneCentimeterToOneMeter := factory oneCentimeter to: factory oneMeter by: factory oneDecimeter.
     
     intervalComparate := Interval from: 1/10 to: 100 by: 1.
     
     intervalComparateOneCentimetersToOneMeter  := Interval from: 1/10 to: 10 by:1. 
          
     self assert: intervalComparate = aDistanceIntervalOneKilometerToOneMeter interval.
-    self assert: decameter = aDistanceIntervalOneKilometerToOneMeter unit.
+    self assert: factory decameter = aDistanceIntervalOneKilometerToOneMeter unit.
      
     self assert: intervalComparateOneCentimetersToOneMeter = aDistanceIntervalOneCentimeterToOneMeter interval.
-    self assert: decimeter = aDistanceIntervalOneCentimeterToOneMeter unit.
+    self assert: factory decimeter = aDistanceIntervalOneCentimeterToOneMeter unit.
 ! !
 
 
-!DistanceTest methodsFor: 'initialization' stamp: 'PR 6/3/2017 21:11:55'!
+!DistanceTest methodsFor: 'initialization' stamp: 'PR 6/3/2017 21:39:03'!
 setUp
-	decameter := Unit createDecameter.
-	meters := Unit createMeter.
-	decimeter := Unit createDecimeter.
-	centimeters := Unit createCentimeter.
-	kilometers := Unit createKilometer.
-	
+	factory := DistanceFactory new.
+		
 	oneFifthMeter := Distance createWithValue: 1/5 withUnit: meters. 
 	zeroMeters := Distance createWithValue: 0 withUnit: meters.
 	oneMeter := Distance createWithValue: 1 withUnit: meters.
@@ -356,6 +358,14 @@ decameter
 decimeter
 	^Unit createDecimeter.! !
 
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/3/2017 22:02:29'!
+fiveMeters
+	^Distance createWithValue: 5 withUnit: Unit createMeter.! !
+
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/3/2017 22:24:33'!
+fourMeters
+	^Distance createWithValue: 4 withUnit: Unit createMeter.! !
+
 !DistanceFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/1/2017 20:27:39'!
 hectometer
 	^Unit createHectometer.! !
@@ -364,7 +374,7 @@ hectometer
 kilometer
 	^Unit createKilometer.! !
 
-!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/1/2017 20:24:17'!
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/3/2017 22:13:26'!
 meter
 	^Unit createMeter.! !
 
@@ -372,25 +382,69 @@ meter
 milimeter
 	^Unit createMilimeter.! !
 
-!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/1/2017 20:30:39'!
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/3/2017 22:24:43'!
+minusOneKilometer
+	^Distance createWithValue: -1 withUnit: Unit createKilometer .! !
+
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/3/2017 22:24:48'!
 minusOneMeter
 	^Distance createWithValue: -1 withUnit: Unit createMeter.! !
 
-!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/1/2017 20:42:53'!
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/3/2017 22:24:56'!
 oneCentimeter 
-	^Distance createWithValue: 1 withUnit: Unit createCentimeter.! !
+	^Distance createWithValue: 1 withUnit: Unit createCentimeter .! !
 
-!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/1/2017 20:42:58'!
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/3/2017 22:25:06'!
+oneDecameter
+	^Distance createWithValue: 1 withUnit: Unit createDecameter.! !
+
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/3/2017 22:25:18'!
+oneDecimeter
+	^Distance createWithValue: 1 withUnit: Unit createDecimeter.! !
+
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/3/2017 22:25:30'!
+oneFifthMeter
+	^Distance createWithValue: 1/5 withUnit: Unit createMeter.! !
+
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/3/2017 22:25:39'!
 oneHundredCentimeters 
 	^Distance createWithValue: 100 withUnit: Unit createCentimeter.! !
+
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/3/2017 22:25:47'!
+oneKilometer
+	^Distance createWithValue: 1 withUnit: Unit createKilometer .! !
 
 !DistanceFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/1/2017 20:30:44'!
 oneMeter
 	^Distance createWithValue: 1 withUnit: Unit createMeter.! !
 
-!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/1/2017 20:43:01'!
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/3/2017 22:28:19'!
+oneThousandMeters
+	^Distance createWithValue: 1000 withUnit: Unit createMeter. ! !
+
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/3/2017 22:07:20'!
+tenMeters
+	^Distance createWithValue: 10 withUnit: Unit createMeter.! !
+
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/3/2017 22:28:35'!
+threeCentimeters
+	^Distance createWithValue: 3 withUnit: Unit createCentimeter .! !
+
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/3/2017 22:00:42'!
+twentyCentimeters
+	^Distance createWithValue: 20 withUnit: Unit createCentimeter .! !
+
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/3/2017 22:02:43'!
+twoCentimeters
+	^Distance createWithValue: 2 withUnit: Unit createCentimeter.! !
+
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/3/2017 22:27:21'!
 twoHundredCentimeters
 	^Distance createWithValue: 200 withUnit: Unit createCentimeter.! !
+
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/3/2017 22:28:41'!
+twoKilometers
+	^Distance createWithValue: 2 withUnit: Unit createKilometer.! !
 
 !DistanceFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/1/2017 20:30:47'!
 twoMeters
