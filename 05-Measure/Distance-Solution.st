@@ -93,9 +93,38 @@ negated
 Distance class
 	instanceVariableNames: 'unit value'!
 
-!Distance class methodsFor: 'as yet unclassified' stamp: 'PR 6/1/2017 21:22:09'!
+!Distance class methodsFor: 'as yet unclassified' stamp: 'Mirko 6/5/2017 17:18:48'!
 createWithValue: anAmount withUnit: aUnit
 	^self new withAmount: anAmount withUnit: aUnit.! !
+
+
+!classDefinition: #Mass category: #'Distance-Solution'!
+Distance subclass: #Mass
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Distance-Solution'!
+
+
+!classDefinition: #Temperature category: #'Distance-Solution'!
+Distance subclass: #Temperature
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Distance-Solution'!
+
+!Temperature methodsFor: 'as yet unclassified' stamp: 'Mirko 6/5/2017 02:19:03'!
+= aTemperature
+	^(aTemperature isKindOf: self class) and: [ self convertToDegreeCelsius amount = aTemperature convertToDegreeCelsius amount].! !
+
+!Temperature methodsFor: 'as yet unclassified' stamp: 'Mirko 6/5/2017 02:22:29'!
+convertToDegreeCelsius 
+	
+	|amountCelsius|
+	(self unit ratio = Unit createDegreeCelsius ratio ) ifTrue: [amountCelsius := amount]
+			 ifFalse: [amountCelsius := amount - 273.15].
+			
+			^Temperature createWithValue: amountCelsius withUnit: Unit createDegreeCelsius.! !
 
 
 !classDefinition: #DistanceTest category: #'Distance-Solution'!
@@ -311,6 +340,64 @@ test22CanDoItIntervalWithStepAsParameterIntermediateUnit
     self assert: factory decimeter = aDistanceIntervalOneCentimeterToOneMeter unit.
 ! !
 
+!DistanceTest methodsFor: 'testing' stamp: 'Mirko 6/4/2017 23:13:23'!
+test23CanCreateOneGramOneKilogram
+
+	|gram kilogram oneGram oneKilogram |
+	
+	gram := Unit createGram.
+	kilogram := Unit createKilogram.
+	
+	oneGram := Mass createWithValue: 1 withUnit: gram.
+	oneKilogram := Mass createWithValue: 1 withUnit: kilogram.
+	
+	self  assert: oneGram amount equals: 1.
+	self assert: oneGram unit equals: gram .
+	
+	self  assert: oneKilogram amount equals: 1.
+	self assert: oneKilogram unit equals: kilogram.
+	! !
+
+!DistanceTest methodsFor: 'testing' stamp: 'Mirko 6/5/2017 02:15:12'!
+test24CanCreateOneDegreeCelsiusOneDegreeKelvin
+
+	|degreeCelcius degreeKelvin oneDegreeCelsius oneDegreeKelvin|
+	
+	degreeCelcius := Unit createDegreeCelsius.
+	degreeKelvin := Unit createDegreeKelvin.
+	
+	oneDegreeCelsius := Temperature createWithValue: 1 withUnit: degreeCelcius .
+	oneDegreeKelvin := Temperature createWithValue: 1 withUnit: degreeKelvin .
+	
+	self  assert: oneDegreeCelsius amount equals: 1.
+	self assert: oneDegreeCelsius unit equals: degreeCelcius .
+	
+	self  assert: oneDegreeKelvin amount equals: 1.
+	self assert: oneDegreeKelvin unit equals: degreeKelvin .
+	! !
+
+!DistanceTest methodsFor: 'testing' stamp: 'Mirko 6/5/2017 01:56:44'!
+test25TemperatureIsEqualToSameTemperature
+	self assert: factory oneDegreeCelsius = factory oneDegreeCelsius copy.
+	self assert: factory oneDegreeKelvin = factory oneDegreeKelvin copy.
+! !
+
+!DistanceTest methodsFor: 'testing' stamp: 'Mirko 6/5/2017 02:23:13'!
+test26TemperatureIsEqualToSameTemperatureInDifferentUnits
+
+	self assert: factory oneDegreeCelsius = factory twoHundredSeventyFourDegreeKelvin.
+	self assert: factory twoDegreeCelsius = factory twoHundredSeventyFiveDegreeKelvin.
+		
+! !
+
+!DistanceTest methodsFor: 'testing' stamp: 'Mirko 6/5/2017 17:23:26'!
+test27AddAndMultiplyTwoMassWithSameUnitCorrectly
+
+	self assert: (factory oneDegreeCelsius  + factory  oneDegreeCelsius) = (factory oneDegreeCelsius *2).
+	self assert: (factory oneDegreeKelvin + factory oneDegreeKelvin) = (factory oneDegreeKelvin * 2). 
+		
+! !
+
 
 !DistanceTest methodsFor: 'initialization' stamp: 'Mirko 6/3/2017 22:47:15'!
 setUp
@@ -369,6 +456,14 @@ decameter
 decimeter
 	^Unit createDecimeter.! !
 
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'Mirko 6/5/2017 02:13:57'!
+decreeCelsius
+	^Unit createDegreeCelsius .! !
+
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'Mirko 6/5/2017 02:14:10'!
+decreeKelvin
+	^Unit createDegreeKelvin .! !
+
 !DistanceFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/3/2017 22:02:29'!
 fiveMeters
 	^Distance createWithValue: 5 withUnit: Unit createMeter.! !
@@ -413,6 +508,14 @@ oneDecameter
 oneDecimeter
 	^Distance createWithValue: 1 withUnit: Unit createDecimeter.! !
 
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'Mirko 6/5/2017 02:11:46'!
+oneDegreeCelsius
+	^Temperature  createWithValue: 1 withUnit: Unit createDegreeCelsius. ! !
+
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'Mirko 6/5/2017 02:11:58'!
+oneDegreeKelvin
+		^Temperature  createWithValue: 1 withUnit: Unit createDegreeKelvin. ! !
+
 !DistanceFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/3/2017 22:25:30'!
 oneFifthMeter
 	^Distance createWithValue: 1/5 withUnit: Unit createMeter.! !
@@ -449,9 +552,21 @@ twentyCentimeters
 twoCentimeters
 	^Distance createWithValue: 2 withUnit: Unit createCentimeter.! !
 
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'Mirko 6/5/2017 02:23:46'!
+twoDegreeCelsius
+	^Temperature  createWithValue: 2 withUnit: Unit createDegreeCelsius. ! !
+
 !DistanceFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/3/2017 22:27:21'!
 twoHundredCentimeters
 	^Distance createWithValue: 200 withUnit: Unit createCentimeter.! !
+
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'Mirko 6/5/2017 02:24:28'!
+twoHundredSeventyFiveDegreeKelvin
+		^Temperature  createWithValue: 275.15 withUnit: Unit createDegreeKelvin.! !
+
+!DistanceFactory methodsFor: 'as yet unclassified' stamp: 'Mirko 6/5/2017 02:16:57'!
+twoHundredSeventyFourDegreeKelvin
+		^Temperature  createWithValue: 274.15 withUnit: Unit createDegreeKelvin. ! !
 
 !DistanceFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/3/2017 22:28:41'!
 twoKilometers
@@ -613,3 +728,20 @@ createMilimeter
 newConvertionRate: aConvertionRate named: aName.
 
 	^self new initializeWithConvertionRate: aConvertionRate withName: aName.! !
+
+
+!Unit class methodsFor: 'as yet unclassified' stamp: 'Mirko 6/4/2017 23:30:52'!
+createDegreeCelsius
+	^self newConvertionRate: 1 named: 'degreeCelsius'! !
+
+!Unit class methodsFor: 'as yet unclassified' stamp: 'Mirko 6/4/2017 23:34:58'!
+createDegreeKelvin
+	^self newConvertionRate: 273.15 named: 'degreeKelvin' ! !
+
+!Unit class methodsFor: 'as yet unclassified' stamp: 'Mirko 6/4/2017 23:15:33'!
+createGram
+	^self newConvertionRate: 1 named: 'gram'.! !
+
+!Unit class methodsFor: 'as yet unclassified' stamp: 'Mirko 6/4/2017 23:16:43'!
+createKilogram
+	^self newConvertionRate: 1000 named: 'kilogram'. ! !
