@@ -1,6 +1,35 @@
+!classDefinition: #Measure category: #'Measure-Solution'!
+Magnitude subclass: #Measure
+	instanceVariableNames: 'amount unit'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Measure-Solution'!
+
+!Measure methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 21:41:45'!
+< aMeasure
+	^ (amount * unit ratio) < (aMeasure amount * aMeasure unit ratio).! !
+
+!Measure methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 19:31:09'!
+= aMeasure
+	^(aMeasure isKindOf: self class) and: [(amount*unit ratio) = (aMeasure amount * aMeasure unit ratio)].! !
+
+!Measure methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 19:02:40'!
+amount
+	^amount.! !
+
+!Measure methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 18:59:27'!
+initializeWithAmount: aNumber withUnit: anUnit 
+	amount := aNumber.
+	unit := anUnit.! !
+
+!Measure methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 19:02:47'!
+unit
+	^unit.! !
+
+
 !classDefinition: #Distance category: #'Measure-Solution'!
-Magnitude subclass: #Distance
-	instanceVariableNames: 'unit amount'
+Measure subclass: #Distance
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Measure-Solution'!
@@ -30,10 +59,6 @@ to: aDistance by: aDistance2
 / aSmallInteger 
 	^Distance createWithValue: amount/aSmallInteger withUnit: unit. ! !
 
-
-!Distance methodsFor: 'comparing' stamp: 'PR 6/1/2017 21:14:16'!
-< aDistance 
-	^ (amount * unit ratio) < (aDistance amount * aDistance unit ratio).! !
 
 
 !Distance methodsFor: 'converting' stamp: 'PR 5/30/2017 17:04:10'!
@@ -89,38 +114,33 @@ negated
 Distance class
 	instanceVariableNames: 'unit value'!
 
-!Distance class methodsFor: 'as yet unclassified' stamp: 'Mirko 6/5/2017 17:18:48'!
-createWithValue: anAmount withUnit: aUnit
-	^self new withAmount: anAmount withUnit: aUnit.! !
+!Distance class methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 21:38:54'!
+createCentimeterWithAmount: anAmount 
+	^self new initializeWithAmount: anAmount withUnit: Unit createCentimeter.! !
 
-
-!classDefinition: #Measure category: #'Measure-Solution'!
-Magnitude subclass: #Measure
-	instanceVariableNames: 'amount unit'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Measure-Solution'!
+!Distance class methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 21:40:38'!
+createDecameterWithAmount: anAmount
+	^self new initializeWithAmount: anAmount withUnit: Unit createDecameter .! !
 
-!Measure methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 18:29:51'!
-< aMeasure
-	self subclassResponsibility ! !
+!Distance class methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 21:40:27'!
+createDecimeterWithAmount: anAmount
+	^self new initializeWithAmount: anAmount withUnit: Unit createDecimeter .! !
 
-!Measure methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 19:31:09'!
-= aMeasure
-	^(aMeasure isKindOf: self class) and: [(amount*unit ratio) = (aMeasure amount * aMeasure unit ratio)].! !
+!Distance class methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 21:40:51'!
+createHectometerWithAmount: anAmount
+	^self new initializeWithAmount: anAmount withUnit: Unit createHectometer .! !
 
-!Measure methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 19:02:40'!
-amount
-	^amount.! !
+!Distance class methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 21:39:50'!
+createKilometerWithAmount: anAmount
+	^self new initializeWithAmount: anAmount withUnit: Unit createKilometer.! !
 
-!Measure methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 18:59:27'!
-initializeWithAmount: aNumber withUnit: anUnit 
-	amount := aNumber.
-	unit := anUnit.! !
+!Distance class methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 21:36:18'!
+createMeterWithAmount: anAmount
+	^self new initializeWithAmount: anAmount withUnit: Unit createMeter.! !
 
-!Measure methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 19:02:47'!
-unit
-	^unit.! !
+!Distance class methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 21:41:02'!
+createMillimeterWithAmount: anAmount
+	^self new initializeWithAmount: anAmount withUnit: Unit createMillimeter .! !
 
 
 !classDefinition: #Mass category: #'Measure-Solution'!
@@ -157,8 +177,8 @@ Measure subclass: #Temperature
 = aTemperature
 	^(aTemperature isKindOf: self class) and: [ self convertToDegreeCelsius amount = aTemperature convertToDegreeCelsius amount].! !
 
-!Temperature methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 19:15:41'!
-convertToDegreeCelsius 
+!Temperature methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 21:31:44'!
+convertToCelsius 
 	
 	(unit = Unit createCelsius) ifFalse: [amount := amount - 273.15].		
 	^Temperature createCelsiusWithAmount: amount.! !
@@ -182,6 +202,14 @@ createKelvinWithAmount: aNumber
 	^self new initializeWithAmount: aNumber withUnit: Unit createKelvin ! !
 
 
+!classDefinition: #Tiempo category: #'Measure-Solution'!
+Measure subclass: #Tiempo
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Measure-Solution'!
+
+
 !classDefinition: #MeasureTest category: #'Measure-Solution'!
 TestCase subclass: #MeasureTest
 	instanceVariableNames: 'factory'
@@ -193,14 +221,14 @@ TestCase subclass: #MeasureTest
 setUp
 	factory := MeasureFactory new.! !
 
-!MeasureTest methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 18:50:13'!
-test01MassRepresentingSameMassShouldBeEqual
+!MeasureTest methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 21:03:23'!
+test001MassRepresentingSameMassShouldBeEqual
 
 	self assert: factory oneKilogram = factory oneKilogram.
 	self assert: factory fiveHundredGrams = factory fiveHundredGrams.! !
 
-!MeasureTest methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 18:51:38'!
-test02DifferentMassesShouldntBeEqual
+!MeasureTest methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 21:03:34'!
+test002DifferentMassesShouldntBeEqual
 
 	self deny: factory oneKilogram = factory twoKilograms.
 	self deny: factory fiveHundredGrams = factory oneThousandGrams.! !
@@ -211,6 +239,20 @@ test101TemperatureRepresentingSameTemperatureShoudBeEqual
 	self assert: factory oneCelsius = factory oneCelsius.
 	self assert: factory zeroKelvin = factory zeroKelvin.
 	self assert: factory thirtyTwoFahrenheits = factory thirtyTwoFahrenheits.! !
+
+!MeasureTest methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 21:23:48'!
+test102DifferentTemperatureShouldntBeEqual
+
+	self deny: factory oneCelsius = factory twoCelsius.
+	self deny: factory threeKelvin = factory zeroKelvin.
+	self deny: factory thirtyTwoFahrenheits = factory tenFahrenheits.! !
+
+!MeasureTest methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 21:34:55'!
+test201DistanceRepresentingSameDistanceShoudBeEqual
+
+	self assert: factory oneMeter = factory oneMeter.
+	self assert: factory oneHundredCentimeters = factory oneHundredCentimeters.
+	self assert: factory oneKilometer = factory oneKilometer.! !
 
 
 !classDefinition: #MeasureFactory category: #'Measure-Solution'!
@@ -267,13 +309,37 @@ minusOneMeter! !
 oneCelsius
 	^Temperature createCelsiusWithAmount: 1.! !
 
+!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 21:38:19'!
+oneHundredCentimeters
+	^Distance createCentimeterWithAmount: 100.! !
+
+!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 21:42:18'!
+oneKilometer
+	^Distance createKilometerWithAmount: 1.! !
+
+!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 21:37:04'!
+oneMeter
+	^Distance createMeterWithAmount: 1.! !
+
 !MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 18:58:45'!
 oneThousandGrams
 	^Mass createGramWithAmount: 1000.! !
 
+!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 21:24:24'!
+tenFahrenheits
+	^Temperature createFahrenheitWithAmount: 10.! !
+
 !MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 19:24:45'!
 thirtyTwoFahrenheits
 	^Temperature createFahrenheitWithAmount: 32.! !
+
+!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 21:24:06'!
+threeKelvin
+	^Temperature createKelvinWithAmount: 3.! !
+
+!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 21:23:22'!
+twoCelsius
+	^Temperature createCelsiusWithAmount: 2.! !
 
 !MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 18:52:03'!
 twoKilograms
