@@ -65,6 +65,30 @@ amount: aSmallInteger unit: anUnit
 	^self new initializeWithAmount: aSmallInteger withUnit: anUnit ! !
 
 
+!classDefinition: #Coin category: #'Measure-Solution'!
+Measure subclass: #Coin
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Measure-Solution'!
+
+
+!classDefinition: #Dolar category: #'Measure-Solution'!
+Coin subclass: #Dolar
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Measure-Solution'!
+
+
+!classDefinition: #Peso category: #'Measure-Solution'!
+Coin subclass: #Peso
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Measure-Solution'!
+
+
 !classDefinition: #Distance category: #'Measure-Solution'!
 Measure subclass: #Distance
 	instanceVariableNames: ''
@@ -240,11 +264,10 @@ test005AMassCanBeSubstractedWithAnotherMassWithSameUnit
 	self assert: factory twoKilograms  - factory  oneKilogram = factory oneKilogram .
 	self assert: factory twoGrams - factory oneGram = factory oneGram.! !
 
-!MeasureTest methodsFor: 'mass' stamp: 'PR 6/6/2017 20:58:35'!
+!MeasureTest methodsFor: 'mass' stamp: 'Mirko 6/7/2017 13:14:34'!
 test006AMassCanBeSubstractedWithAnotherMassWithDifferentUnit
 
 	self assert: factory twoKilograms  -  factory oneThousandGrams = factory oneKilogram .
-	self assert: (factory twoKilograms  -  factory oneThousandGrams) class = Mass.
 ! !
 
 !MeasureTest methodsFor: 'mass' stamp: 'PR 6/6/2017 20:59:12'!
@@ -331,6 +354,132 @@ test201DistanceRepresentingSameDistanceShoudBeEqual
 	self assert: factory oneMeter = factory oneMeter.
 	self assert: factory oneHundredCentimeters = factory oneHundredCentimeters.
 	self assert: factory oneKilometer = factory oneKilometer.! !
+
+
+!MeasureTest methodsFor: 'time' stamp: 'Mirko 6/7/2017 12:20:40'!
+test300CreatedTimesShoudHaveCorrectUnitAndAmount
+
+	self assert: factory oneMinute unit = factory minute.
+	self assert: factory oneMinute amount = 1.
+
+! !
+
+!MeasureTest methodsFor: 'time' stamp: 'Mirko 6/7/2017 12:43:46'!
+test301TimeRepresentingSameTimeShouldBeEqual
+
+	self assert: factory oneMinute  = factory oneMinute .
+	self assert: factory oneHour  = factory oneHour.
+	self assert: factory oneSecond = factory oneSecond.
+
+! !
+
+!MeasureTest methodsFor: 'time' stamp: 'Mirko 6/7/2017 12:45:42'!
+test302DifferentTimesShouldntBeEqual
+
+	self deny: factory oneMinute  = factory oneHour .
+	self deny: factory oneSecond  = factory oneHour.
+	self deny: factory oneSecond = factory oneMinute .
+
+! !
+
+!MeasureTest methodsFor: 'time' stamp: 'Mirko 6/7/2017 12:49:17'!
+test303EquivalenceBetweenDifferentUnits
+
+	self assert: factory sixtyMinutes  = factory oneHour .
+	self assert: factory sixtySecond  = factory oneMinute.
+	self assert: factory threeThousandSixhundredSecond = factory oneHour.
+
+! !
+
+!MeasureTest methodsFor: 'time' stamp: 'Mirko 6/7/2017 13:05:20'!
+test304ATimeCanBeAddedWithAnotherTimeWithSameUnit
+
+	self assert: factory oneHour  + factory oneHour = factory twoHours.
+	self assert: factory oneMinute  + factory oneMinute = factory oneHundredAndTwentySeconds. 
+	self assert: factory oneSecond  + factory oneSecond = factory twoSeconds.! !
+
+!MeasureTest methodsFor: 'time' stamp: 'Mirko 6/7/2017 13:05:41'!
+test305ATimeCanBeAddedWithAnotherTimeWithDifferentUnit
+
+	self assert: factory sixtyMinutes  + factory oneHour = factory twoHours.
+	self assert: factory sixtySecond  + factory oneMinute = factory oneHundredAndTwentySeconds. 
+	self assert: factory sixtySecond  + factory oneMinute = factory twoMinutes.! !
+
+!MeasureTest methodsFor: 'time' stamp: 'Mirko 6/7/2017 13:13:09'!
+test306ATimeCanBeSubstractedWithAnotherTimeWithSameUnit
+
+	self assert: factory twoHours  - factory oneHour = factory oneHour.
+	self assert: factory twoSeconds  - factory oneSecond = factory oneSecond. 
+	self assert: factory twoMinutes  - factory oneMinute = factory oneMinute.! !
+
+!MeasureTest methodsFor: 'time' stamp: 'Mirko 6/7/2017 13:17:14'!
+test307ATimeCanBeSubstractedWithAnotherTimeWithDifferentUnit
+
+	self assert: factory twoHours  - factory sixtyMinutes = factory oneHour.
+	self assert: factory twoHours  - factory sixtyMinutes = factory threeThousandSixhundredSecond.
+	self assert: factory twoMinutes  - factory sixtySecond = factory oneMinute.! !
+
+!MeasureTest methodsFor: 'time' stamp: 'Mirko 6/7/2017 13:20:15'!
+test308ATimeCanBeMultipliedByAScalar
+
+	self assert: factory oneHour * 2  = factory twoHours.
+	self assert: factory sixtyMinutes * 2 =  factory twoHours .
+	self assert: factory oneSecond * 60 = factory oneMinute.
+	self assert: factory oneHour * (1/60) = factory oneMinute.! !
+
+!MeasureTest methodsFor: 'time' stamp: 'Mirko 6/7/2017 14:43:25'!
+test309AScalarCanBeMultipliedByATime
+
+	self assert: 2 * factory oneHour  = factory twoHours.
+	self assert:  2 * factory sixtyMinutes  =  factory twoHours .
+	self assert: 60 * factory oneSecond  = factory oneMinute.
+	self assert:  (1/60) * factory oneHour  = factory oneMinute.! !
+
+!MeasureTest methodsFor: 'time' stamp: 'Mirko 6/7/2017 14:42:47'!
+test310ATimeCanBeDividedByAScalar
+
+	self assert:   factory twoHours/ 2 = factory oneHour  .
+	self assert:   factory twoHours / 2  = factory sixtyMinutes  .
+	self assert:  	factory oneMinute / 60 = factory oneSecond .
+	self assert:  	factory oneHour / 3600 = factory oneSecond.! !
+
+!MeasureTest methodsFor: 'time' stamp: 'Mirko 6/7/2017 14:45:46'!
+test311ATimeCanBeNegated
+
+	self assert:   factory oneHour negated = factory minus0neHour .
+	self assert:  factory oneMinute negated = factory minusOneMinute.
+	self assert: factory oneSecond  negated = factory minusOneSecond. 
+	
+! !
+
+
+!MeasureTest methodsFor: 'coin' stamp: 'Mirko 6/7/2017 15:00:53'!
+test400CreatedCoinShouldHaveCorrectUnitAndAmount.
+
+	self assert: factory oneDolar unit = factory dolar.
+	self assert: factory oneDolar amount = 1.
+	
+	self assert: factory onePeso unit  = factory peso.
+	self assert: factory onePeso amount = 1.! !
+
+!MeasureTest methodsFor: 'coin' stamp: 'Mirko 6/7/2017 15:02:58'!
+test401CoinRepresentingSameCoinShouldBeEqual
+
+	self assert: factory oneDolar = factory oneDolar.	
+	self assert: factory onePeso  = factory onePeso. ! !
+
+!MeasureTest methodsFor: 'coin' stamp: 'Mirko 6/7/2017 15:12:29'!
+test402DifferentTypesCoinsDoNotAreEquals
+
+	self deny: factory oneMinute  = factory onePeso.
+
+! !
+
+!MeasureTest methodsFor: 'coin' stamp: 'Mirko 6/7/2017 15:17:07'!
+test403ACoinCanBeAddedWithAnotherCoinWithSameUnit
+
+	self assert: factory oneDolar  + factory oneDolar = factory twoDolars.
+	self assert: factory onePeso  + factory onePeso = factory twoPesos ! !
 
 
 !classDefinition: #MeasureFactory category: #'Measure-Solution'!
@@ -501,6 +650,95 @@ zeroCelsius
 zeroKelvin
 	^Temperature amount: 0 unit: Unit kelvin .! !
 
+
+!MeasureFactory methodsFor: 'time' stamp: 'Mirko 6/7/2017 14:46:16'!
+minus0neHour
+	^Tiempo amount: -1 unit: Unit hour.! !
+
+!MeasureFactory methodsFor: 'time' stamp: 'Mirko 6/7/2017 14:46:42'!
+minusOneMinute
+	^Tiempo amount: -1  unit:Unit minute .! !
+
+!MeasureFactory methodsFor: 'time' stamp: 'Mirko 6/7/2017 14:47:07'!
+minusOneSecond
+	^Tiempo amount: -1 unit: Unit second. ! !
+
+!MeasureFactory methodsFor: 'time' stamp: 'Mirko 6/7/2017 12:33:37'!
+oneHour
+	^Tiempo amount: 1 unit: Unit hour.! !
+
+!MeasureFactory methodsFor: 'time' stamp: 'Mirko 6/7/2017 13:00:37'!
+oneHundredAndTwentySeconds
+	^Tiempo amount: 120 unit: Unit second .! !
+
+!MeasureFactory methodsFor: 'time' stamp: 'Mirko 6/7/2017 12:23:33'!
+oneMinute
+	^Tiempo amount: 1 unit: Unit  minute .! !
+
+!MeasureFactory methodsFor: 'time' stamp: 'Mirko 6/7/2017 12:39:13'!
+oneSecond
+	^Tiempo amount: 1 unit: Unit second.! !
+
+!MeasureFactory methodsFor: 'time' stamp: 'Mirko 6/7/2017 12:50:20'!
+sixtyMinutes
+	^Tiempo amount: 60 unit: Unit minute.! !
+
+!MeasureFactory methodsFor: 'time' stamp: 'Mirko 6/7/2017 12:51:01'!
+sixtySecond
+	^Tiempo amount: 60 unit: Unit second.
+	! !
+
+!MeasureFactory methodsFor: 'time' stamp: 'Mirko 6/7/2017 12:52:47'!
+threeThousandSixhundredSecond
+	^Tiempo amount: 3600 unit: Unit second.! !
+
+!MeasureFactory methodsFor: 'time' stamp: 'Mirko 6/7/2017 12:59:49'!
+twoHours
+	^Tiempo amount: 2 unit: Unit hour.! !
+
+!MeasureFactory methodsFor: 'time' stamp: 'Mirko 6/7/2017 13:00:12'!
+twoMinutes
+	^Tiempo amount: 2 unit: Unit minute.! !
+
+!MeasureFactory methodsFor: 'time' stamp: 'Mirko 6/7/2017 13:06:13'!
+twoSeconds
+	^Tiempo amount: 2 unit: Unit second .! !
+
+
+!MeasureFactory methodsFor: 'coin unit' stamp: 'Mirko 6/7/2017 14:54:10'!
+dolar
+	^Unit dolar .! !
+
+!MeasureFactory methodsFor: 'coin unit' stamp: 'Mirko 6/7/2017 14:59:52'!
+peso
+	^Unit peso.! !
+
+
+!MeasureFactory methodsFor: 'time unit' stamp: 'Mirko 6/7/2017 15:28:13'!
+hour
+	^Unit hour .! !
+
+!MeasureFactory methodsFor: 'time unit' stamp: 'Mirko 6/7/2017 12:25:36'!
+minute
+	^Unit minute.! !
+
+
+!MeasureFactory methodsFor: 'coin' stamp: 'Mirko 6/7/2017 15:03:32'!
+oneDolar
+	^Dolar amount: 1 unit: Unit dolar. ! !
+
+!MeasureFactory methodsFor: 'coin' stamp: 'Mirko 6/7/2017 14:57:48'!
+onePeso
+	^Peso amount: 1 unit: Unit peso. ! !
+
+!MeasureFactory methodsFor: 'coin' stamp: 'Mirko 6/7/2017 15:17:37'!
+twoDolars
+	^ Dolar amount: 2 unit: Unit  dolar .! !
+
+!MeasureFactory methodsFor: 'coin' stamp: 'Mirko 6/7/2017 15:18:02'!
+twoPesos
+	^Peso amount: 2 unit: Unit peso.! !
+
 
 !classDefinition: #Unit category: #'Measure-Solution'!
 Object subclass: #Unit
@@ -599,5 +837,27 @@ gram
 !Unit class methodsFor: 'mass creation' stamp: 'PR 6/6/2017 21:19:28'!
 kilogram
 	^self newConvertionRate: 1000 named: 'kilogram'. ! !
+
+
+!Unit class methodsFor: 'time creation' stamp: 'Mirko 6/7/2017 12:38:41'!
+hour
+	^self new initializeWithConvertionRate: 60 withName: 'hour' ! !
+
+!Unit class methodsFor: 'time creation' stamp: 'Mirko 6/7/2017 12:25:00'!
+minute
+	^self new initializeWithConvertionRate: 1 withName: 'minute'. ! !
+
+!Unit class methodsFor: 'time creation' stamp: 'Mirko 6/7/2017 12:40:04'!
+second
+	^self new initializeWithConvertionRate: 1/60 withName: 'second'.! !
+
+
+!Unit class methodsFor: 'coin creation' stamp: 'Mirko 6/7/2017 14:53:30'!
+dolar
+	^self new initializeWithConvertionRate: 1 withName: 'dolar'.! !
+
+!Unit class methodsFor: 'coin creation' stamp: 'Mirko 6/7/2017 14:59:36'!
+peso
+	^self new initializeWithConvertionRate: 1 withName: 'peso'.! !
 
 Unit initialize!
