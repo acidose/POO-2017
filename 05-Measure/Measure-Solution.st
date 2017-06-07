@@ -340,83 +340,6 @@ Object subclass: #MeasureFactory
 	poolDictionaries: ''
 	category: 'Measure-Solution'!
 
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:11:13'!
-oneKilometer
-	^Distance amount: 1 unit: Unit kilometer.! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:11:23'!
-oneMeter
-	^Distance amount: 1 unit: Unit meter.! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:11:50'!
-oneThousandGrams
-	^Mass amount: 1000 unit: Unit gram.! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:12:05'!
-sixKelvin
-	^Temperature amount: 6 unit: Unit kelvin.! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:12:22'!
-tenFahrenheits
-	^Temperature amount: 10 unit: Unit fahrenheit .! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:12:38'!
-thirtyCelsius
-	^Temperature amount: 30 unit: Unit celsius.! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:13:02'!
-thirtyTwoFahrenheits
-	^Temperature amount: 32 unit: Unit fahrenheit .! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:13:12'!
-threeHundredKelvin
-	^Temperature amount: 300 unit: Unit kelvin.! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:13:22'!
-threeKelvin
-	^Temperature amount: 3 unit: Unit kelvin.! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:14:29'!
-threepointEightyFiveCelsius
-	^Temperature amount: 30- (300-273.15) unit: Unit celsius.! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:15:14'!
-twelveFahrenheits
-	^Temperature amount: 12 unit: Unit fahrenheit .! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:15:23'!
-twentyFahrenheits
-	^Temperature amount: 20 unit: Unit fahrenheit .! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:15:34'!
-twoCelsius
-	^Temperature amount: 2 unit: Unit celsius .! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:15:48'!
-twoGrams
-	^Mass amount: 2 unit: Unit gram.! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:15:59'!
-twoKilograms
-	^Mass amount: 2 unit: Unit kilogram .! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:06:13'!
-twoKilometers
-	^Distance amount: 2 unit: Unit kilometer.! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:06:23'!
-twoMeters
-	^Distance amount: 2 unit: Unit meter .! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:16:14'!
-zeroCelsius
-	^Temperature amount: 0 unit: Unit celsius .! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:16:23'!
-zeroKelvin
-	^Temperature amount: 0 unit: Unit kelvin .! !
-
-
 !MeasureFactory methodsFor: 'mass' stamp: 'PR 6/6/2017 21:08:33'!
 fiveHundredGrams
 	^Mass amount: 500 unit: Unit gram.! !
@@ -432,6 +355,18 @@ oneGram
 !MeasureFactory methodsFor: 'mass' stamp: 'PR 6/6/2017 21:25:14'!
 oneKilogram
 	^Mass amount: 1 unit: Unit kilogram.! !
+
+!MeasureFactory methodsFor: 'mass' stamp: 'PR 6/6/2017 21:11:50'!
+oneThousandGrams
+	^Mass amount: 1000 unit: Unit gram.! !
+
+!MeasureFactory methodsFor: 'mass' stamp: 'PR 6/6/2017 21:15:48'!
+twoGrams
+	^Mass amount: 2 unit: Unit gram.! !
+
+!MeasureFactory methodsFor: 'mass' stamp: 'PR 6/6/2017 21:15:59'!
+twoKilograms
+	^Mass amount: 2 unit: Unit kilogram .! !
 
 
 !MeasureFactory methodsFor: 'temperature unit' stamp: 'PR 6/6/2017 21:07:58'!
@@ -493,6 +428,22 @@ minusOneMeter
 oneHundredCentimeters
 	^Distance amount: 100 unit: Unit centimeter.! !
 
+!MeasureFactory methodsFor: 'distance' stamp: 'PR 6/6/2017 21:11:13'!
+oneKilometer
+	^Distance amount: 1 unit: Unit kilometer.! !
+
+!MeasureFactory methodsFor: 'distance' stamp: 'PR 6/6/2017 21:11:23'!
+oneMeter
+	^Distance amount: 1 unit: Unit meter.! !
+
+!MeasureFactory methodsFor: 'distance' stamp: 'PR 6/6/2017 21:06:13'!
+twoKilometers
+	^Distance amount: 2 unit: Unit kilometer.! !
+
+!MeasureFactory methodsFor: 'distance' stamp: 'PR 6/6/2017 21:06:23'!
+twoMeters
+	^Distance amount: 2 unit: Unit meter .! !
+
 
 !MeasureFactory methodsFor: 'temperature' stamp: 'PR 6/6/2017 21:38:14'!
 minusTwoHundredSixtyNineDotFifteenKelvin
@@ -501,6 +452,54 @@ minusTwoHundredSixtyNineDotFifteenKelvin
 !MeasureFactory methodsFor: 'temperature' stamp: 'PR 6/6/2017 21:10:15'!
 oneCelsius
 	^Temperature amount: 1 unit: Unit celsius.! !
+
+!MeasureFactory methodsFor: 'temperature' stamp: 'PR 6/6/2017 21:12:05'!
+sixKelvin
+	^Temperature amount: 6 unit: Unit kelvin.! !
+
+!MeasureFactory methodsFor: 'temperature' stamp: 'PR 6/6/2017 21:12:22'!
+tenFahrenheits
+	^Temperature amount: 10 unit: Unit fahrenheit .! !
+
+!MeasureFactory methodsFor: 'temperature' stamp: 'PR 6/6/2017 21:12:38'!
+thirtyCelsius
+	^Temperature amount: 30 unit: Unit celsius.! !
+
+!MeasureFactory methodsFor: 'temperature' stamp: 'PR 6/6/2017 21:13:02'!
+thirtyTwoFahrenheits
+	^Temperature amount: 32 unit: Unit fahrenheit .! !
+
+!MeasureFactory methodsFor: 'temperature' stamp: 'PR 6/6/2017 21:13:12'!
+threeHundredKelvin
+	^Temperature amount: 300 unit: Unit kelvin.! !
+
+!MeasureFactory methodsFor: 'temperature' stamp: 'PR 6/6/2017 21:13:22'!
+threeKelvin
+	^Temperature amount: 3 unit: Unit kelvin.! !
+
+!MeasureFactory methodsFor: 'temperature' stamp: 'PR 6/6/2017 21:14:29'!
+threepointEightyFiveCelsius
+	^Temperature amount: 30- (300-273.15) unit: Unit celsius.! !
+
+!MeasureFactory methodsFor: 'temperature' stamp: 'PR 6/6/2017 21:15:14'!
+twelveFahrenheits
+	^Temperature amount: 12 unit: Unit fahrenheit .! !
+
+!MeasureFactory methodsFor: 'temperature' stamp: 'PR 6/6/2017 21:15:23'!
+twentyFahrenheits
+	^Temperature amount: 20 unit: Unit fahrenheit .! !
+
+!MeasureFactory methodsFor: 'temperature' stamp: 'PR 6/6/2017 21:15:34'!
+twoCelsius
+	^Temperature amount: 2 unit: Unit celsius .! !
+
+!MeasureFactory methodsFor: 'temperature' stamp: 'PR 6/6/2017 21:16:14'!
+zeroCelsius
+	^Temperature amount: 0 unit: Unit celsius .! !
+
+!MeasureFactory methodsFor: 'temperature' stamp: 'PR 6/6/2017 21:16:23'!
+zeroKelvin
+	^Temperature amount: 0 unit: Unit kelvin .! !
 
 
 !classDefinition: #Unit category: #'Measure-Solution'!
