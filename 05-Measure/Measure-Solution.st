@@ -340,78 +340,6 @@ Object subclass: #MeasureFactory
 	poolDictionaries: ''
 	category: 'Measure-Solution'!
 
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:07:58'!
-celsius
-	^Unit celsius.! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:07:47'!
-centimeter
-	^Unit centimeter .! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:07:54'!
-decameter
-	^Unit decameter .! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:08:03'!
-decimeter
-	^Unit decimeter .! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:08:09'!
-fahrenheit
-	^Unit fahrenheit.! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:08:33'!
-fiveHundredGrams
-	^Mass amount: 500 unit: Unit gram.! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:08:38'!
-hectometer
-	^Unit hectometer .! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:08:43'!
-kelvin
-	^Unit kelvin.! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:08:47'!
-kilogram
-	^Unit kilogram.! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:08:51'!
-kilometer
-	^Unit kilometer .! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:08:53'!
-meter
-	^Unit meter .! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:08:58'!
-millimeter
-	^Unit millimeter.! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:09:09'!
-minusOneKilogram
-	^Mass amount: -1 unit: Unit kilogram.! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:09:33'!
-minusOneMeter
-	^Distance amount: -1 unit: Unit meter.! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:38:14'!
-minusTwoHundredSixtyNineDotFifteenKelvin
-	^Temperature amount: -269.15 unit: Unit kelvin.! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:10:15'!
-oneCelsius
-	^Temperature amount: 1 unit: Unit celsius.! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:10:32'!
-oneGram
-	^Mass amount: 1 unit: Unit gram.! !
-
-!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:11:02'!
-oneHundredCentimeters
-	^Distance amount: 100 unit: Unit centimeter.! !
-
 !MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:11:13'!
 oneKilometer
 	^Distance amount: 1 unit: Unit kilometer.! !
@@ -489,9 +417,90 @@ zeroKelvin
 	^Temperature amount: 0 unit: Unit kelvin .! !
 
 
+!MeasureFactory methodsFor: 'mass' stamp: 'PR 6/6/2017 21:08:33'!
+fiveHundredGrams
+	^Mass amount: 500 unit: Unit gram.! !
+
+!MeasureFactory methodsFor: 'mass' stamp: 'PR 6/6/2017 21:09:09'!
+minusOneKilogram
+	^Mass amount: -1 unit: Unit kilogram.! !
+
+!MeasureFactory methodsFor: 'mass' stamp: 'PR 6/6/2017 21:10:32'!
+oneGram
+	^Mass amount: 1 unit: Unit gram.! !
+
 !MeasureFactory methodsFor: 'mass' stamp: 'PR 6/6/2017 21:25:14'!
 oneKilogram
 	^Mass amount: 1 unit: Unit kilogram.! !
+
+
+!MeasureFactory methodsFor: 'temperature unit' stamp: 'PR 6/6/2017 21:07:58'!
+celsius
+	^Unit celsius.! !
+
+!MeasureFactory methodsFor: 'temperature unit' stamp: 'PR 6/6/2017 21:08:09'!
+fahrenheit
+	^Unit fahrenheit.! !
+
+!MeasureFactory methodsFor: 'temperature unit' stamp: 'PR 6/6/2017 21:08:43'!
+kelvin
+	^Unit kelvin.! !
+
+
+!MeasureFactory methodsFor: 'distance unit' stamp: 'PR 6/6/2017 21:07:47'!
+centimeter
+	^Unit centimeter .! !
+
+!MeasureFactory methodsFor: 'distance unit' stamp: 'PR 6/6/2017 21:07:54'!
+decameter
+	^Unit decameter .! !
+
+!MeasureFactory methodsFor: 'distance unit' stamp: 'PR 6/6/2017 21:08:03'!
+decimeter
+	^Unit decimeter .! !
+
+!MeasureFactory methodsFor: 'distance unit' stamp: 'PR 6/6/2017 21:08:38'!
+hectometer
+	^Unit hectometer .! !
+
+!MeasureFactory methodsFor: 'distance unit' stamp: 'PR 6/6/2017 21:08:51'!
+kilometer
+	^Unit kilometer .! !
+
+!MeasureFactory methodsFor: 'distance unit' stamp: 'PR 6/6/2017 21:08:53'!
+meter
+	^Unit meter .! !
+
+!MeasureFactory methodsFor: 'distance unit' stamp: 'PR 6/6/2017 21:08:58'!
+millimeter
+	^Unit millimeter.! !
+
+
+!MeasureFactory methodsFor: 'mass unit' stamp: 'Mirko 6/7/2017 00:12:33'!
+gram
+	^Unit gram.! !
+
+!MeasureFactory methodsFor: 'mass unit' stamp: 'PR 6/6/2017 21:08:47'!
+kilogram
+	^Unit kilogram.! !
+
+
+!MeasureFactory methodsFor: 'distance' stamp: 'PR 6/6/2017 21:09:33'!
+minusOneMeter
+	^Distance amount: -1 unit: Unit meter.! !
+
+!MeasureFactory methodsFor: 'distance' stamp: 'PR 6/6/2017 21:11:02'!
+oneHundredCentimeters
+	^Distance amount: 100 unit: Unit centimeter.! !
+
+
+!MeasureFactory methodsFor: 'temperature' stamp: 'PR 6/6/2017 21:38:14'!
+minusTwoHundredSixtyNineDotFifteenKelvin
+	^Temperature amount: -269.15 unit: Unit kelvin.! !
+
+!MeasureFactory methodsFor: 'temperature' stamp: 'PR 6/6/2017 21:10:15'!
+oneCelsius
+	^Temperature amount: 1 unit: Unit celsius.! !
 
 
 !classDefinition: #Unit category: #'Measure-Solution'!
