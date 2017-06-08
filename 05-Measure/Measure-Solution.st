@@ -9,9 +9,10 @@ Magnitude subclass: #Measure
 * aSmallInteger 
 	^self class amount: amount*aSmallInteger unit: self unit.! !
 
-!Measure methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:05:32'!
+!Measure methodsFor: 'as yet unclassified' stamp: 'Mirko 6/7/2017 21:21:49'!
 + aMeasure 
-	^self class amount: ((amount*unit ratio) + (aMeasure amount*aMeasure unit ratio))/ unit ratio unit: self unit. ! !
+	(self class = aMeasure class)ifTrue:
+	[^self class amount: ((amount*unit ratio) + (aMeasure amount*aMeasure unit ratio))/ unit ratio unit: self unit]! !
 
 !Measure methodsFor: 'as yet unclassified' stamp: 'Mirko 6/6/2017 03:40:20'!
 - aDistance 
@@ -130,7 +131,7 @@ lesserUnit: aDistance
 (self unit ratio < aDistance unit ratio)ifTrue: [^self unit ] ifFalse: [^aDistance unit ]. ! !
 
 
-!Distance methodsFor: 'as yet unclassified' stamp: 'Mirko 6/3/2017 22:50:58'!
+!Distance methodsFor: 'hashing' stamp: 'Mirko 6/3/2017 22:50:58'!
 hash
 	|hasher|
 	hasher := self convertTo: Unit createMeter.
@@ -194,16 +195,16 @@ Measure subclass: #Temperature
 = aTemperature
 	^(aTemperature isKindOf: self class) and: [ (self convertTo: Unit celsius) amount = (aTemperature convertTo: Unit celsius) amount].! !
 
-!Temperature methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:49:23'!
+!Temperature methodsFor: 'as yet unclassified' stamp: 'Mirko 6/7/2017 19:53:54'!
 convertTo: anUnit
 
 	(unit = anUnit) ifTrue: [^self].
 	[ :arg :arg2 | arg +arg2.1] value: 4 value: 5.
-	^self class amount: (anUnit ratio value: amount) unit: anUnit. 
+	^self class amount: (anUnit ratio value: amount) unit: anUnit.
 	
+	
+		
 	"self convertToCelsius."
-	
-	
 	"(unit = Unit kelvin ) ifTrue:[^Temperature createCelsiusWithAmount: amount -273.15]
 	ifFalse: [^Temperature createCelsiusWithAmount: (amount -32)*(5/9)]."! !
 
@@ -481,6 +482,59 @@ test403ACoinCanBeAddedWithAnotherCoinWithSameUnit
 	self assert: factory oneDolar  + factory oneDolar = factory twoDolars.
 	self assert: factory onePeso  + factory onePeso = factory twoPesos ! !
 
+!MeasureTest methodsFor: 'coin' stamp: 'Mirko 6/7/2017 19:34:24'!
+test404ACoinCanBeSubstractedWithAnotherCoinWithSameUnit
+
+	self assert: factory twoDolars  - factory oneDolar = factory oneDolar.
+	self assert: factory twoPesos  - factory onePeso = factory onePeso.! !
+
+!MeasureTest methodsFor: 'coin' stamp: 'Mirko 6/7/2017 19:35:32'!
+test405ACoinCanBeMultipliedByAScalar
+
+	self assert: factory oneDolar * 2 = factory twoDolars.
+	self assert: factory onePeso *2  = factory twoPesos.! !
+
+!MeasureTest methodsFor: 'coin' stamp: 'Mirko 6/7/2017 19:37:13'!
+test406AScalarCanBeMultipliedByACoin
+
+	self assert:  2  * factory oneDolar = factory twoDolars.
+	self assert: 2 * factory onePeso  = factory twoPesos.
+	! !
+
+!MeasureTest methodsFor: 'coin' stamp: 'Mirko 6/7/2017 19:38:45'!
+test407ACoinCanBeDividedByAScalar
+
+	self assert:  factory twoDolars / 2 = factory oneDolar .
+	self assert:  factory twoPesos / 2 = factory onePeso  .
+	! !
+
+!MeasureTest methodsFor: 'coin' stamp: 'Mirko 6/7/2017 19:41:54'!
+test408ACoinCanBeNegated
+
+	self assert: factory oneDolar negated = factory minusOneDolar.
+	self assert: factory onePeso negated negated = factory onePeso.! !
+
+
+!MeasureTest methodsFor: 'Interaction' stamp: 'Mirko 6/7/2017 21:08:17'!
+test500InteractionBetweenSumOfDifferentUnitsNoCombinanUnits
+
+self assert: factory oneMeter + factory oneKilogram  = (factory oneMeter + factory oneKilogram).
+self deny:  (factory oneMeter + factory oneKilogram) unit = Unit meter .
+self deny:  (factory oneMeter + factory oneKilogram) unit = Unit kilometer .
+
+self assert: factory oneGram  + factory oneKilometer  = ( factory oneGram  + factory oneKilometer).
+self deny:  (factory oneGram  + factory oneKilometer) unit = Unit gram .
+self deny:  (factory oneGram  + factory oneKilometer) unit = Unit kilometer .
+
+self assert: factory onePeso  + factory oneDolar  =  (factory onePeso  + factory oneDolar).
+self deny:  (factory onePeso  + factory oneDolar) unit = Unit peso .
+self deny:  (factory onePeso  + factory oneDolar) unit = Unit dolar .
+
+self assert: factory onePeso + factory oneGram  =  (factory onePeso + factory oneGram).
+self deny:  (factory onePeso + factory oneGram) unit = Unit peso .
+self deny:  (factory onePeso + factory oneGram) unit = Unit gram .
+! !
+
 
 !classDefinition: #MeasureFactory category: #'Measure-Solution'!
 Object subclass: #MeasureFactory
@@ -722,6 +776,10 @@ hour
 minute
 	^Unit minute.! !
 
+
+!MeasureFactory methodsFor: 'coin' stamp: 'Mirko 6/7/2017 19:41:04'!
+minusOneDolar
+	^Dolar  amount: -1 unit: Unit dolar .! !
 
 !MeasureFactory methodsFor: 'coin' stamp: 'Mirko 6/7/2017 15:03:32'!
 oneDolar
