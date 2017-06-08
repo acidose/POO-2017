@@ -17,9 +17,9 @@ Magnitude subclass: #Measure
 	ifFalse: [	measures := OrderedCollection new. measures add: self. measures add: aMeasure .
  ^CompositeMeasure new initialize: measures]! !
 
-!Measure methodsFor: 'as yet unclassified' stamp: 'Mirko 6/6/2017 03:40:20'!
+!Measure methodsFor: 'as yet unclassified' stamp: 'Mirko 6/8/2017 14:27:25'!
 - aDistance 
-	^self + (aDistance * (-1)).! !
+	^self + aDistance  negated .! !
 
 !Measure methodsFor: 'as yet unclassified' stamp: 'Mirko 6/6/2017 03:41:16'!
 / aSmallInteger 
@@ -109,6 +109,15 @@ Measure subclass: #CompositeMeasure
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Measure-Solution'!
+
+!CompositeMeasure methodsFor: 'as yet unclassified' stamp: 'Mirko 6/8/2017 13:58:50'!
++ anMeasure 
+	|measures|
+	"tengo que sumar una medida compuesta con una medida"
+measures := compositeMeasure collect: [:val | (anMeasure class = val class) ifTrue:[val + anMeasure ]ifFalse: [val]].
+	(compositeMeasure = measures )ifTrue:[measures add: anMeasure ].
+	
+	^CompositeMeasure new initialize: measures.! !
 
 !CompositeMeasure methodsFor: 'as yet unclassified' stamp: 'Mirko 6/8/2017 02:05:01'!
 = anCompositeMeasure
@@ -555,8 +564,19 @@ test408ACoinCanBeNegated
 	self assert: factory onePeso negated negated = factory onePeso.! !
 
 
-!MeasureTest methodsFor: 'Interaction' stamp: 'Mirko 6/8/2017 01:08:00'!
-test500InteractionBetweenSumOfDifferentUnitsNoCombinanUnits
+!MeasureTest methodsFor: 'Interaction' stamp: 'Mirko 6/8/2017 14:42:18'!
+test500a_CompareDifferentTypesOfUnitsMustGiveFalse
+
+self deny:  factory oneMeter = factory oneKilogram .
+
+self deny:  factory oneGram  = factory oneKilometer.
+
+self deny:  factory onePeso  = factory oneDolar.
+
+self deny:  factory onePeso = factory oneGram! !
+
+!MeasureTest methodsFor: 'Interaction' stamp: 'Mirko 6/8/2017 14:42:31'!
+test500b_InteractionBetweenSumOfDifferentUnitsNoCombinanUnits
 
 self assert: factory oneMeter + factory oneKilogram  = (factory oneMeter + factory oneKilogram).
 self deny:  (factory oneMeter + factory oneKilogram) unit = Unit meter .
@@ -575,16 +595,77 @@ self deny:  (factory onePeso + factory oneGram) unit = Unit peso .
 self deny:  (factory onePeso + factory oneGram) unit = Unit gram .
 ! !
 
-!MeasureTest methodsFor: 'Interaction' stamp: 'Mirko 6/8/2017 00:48:21'!
-test501InteractionBetweenSumOfDifferentUnitsNoCombinanUnitsAreTheSameRgardlessOfTheSumOrder
+!MeasureTest methodsFor: 'Interaction' stamp: 'Mirko 6/8/2017 14:30:59'!
+test501InteractionBetweenSumOfDifferentUnitsNoCombinanUnitsAreTheSameRegardlessOfTheSumOrder
 
-self assert: factory oneMeter + factory oneKilogram  = ( factory oneKilogram + factory oneMeter ).
+self assert: factory oneHundredCentimeters + factory oneKilogram  = ( factory oneKilogram + factory oneMeter ).
 
-self assert: factory oneGram  + factory oneKilometer  = ( factory oneKilometer +factory oneGram ).
+self assert: factory oneGram  + factory oneKilometer  = ( factory  oneMeter * 1000 + factory oneGram ).
 
-self assert: factory onePeso  + factory oneDolar  =  (factory oneDolar + factory onePeso).
 
-self assert: factory onePeso + factory oneGram  =  (factory oneGram + factory onePeso).
+self assert: factory onePeso + (factory oneGram * 1000)  =  (factory oneKilogram + factory onePeso).
+! !
+
+!MeasureTest methodsFor: 'Interaction' stamp: 'Mirko 6/8/2017 13:28:07'!
+test503InteractionBetweenSumOfDifferentUnitsNoCombinanUnitsAreTheSameRegardlessOfTheSumOrderAndSupportsEquivalenceOfTheSameUnitType
+
+self assert: factory oneHundredCentimeters + factory oneKilogram  = ( factory oneKilogram + factory oneMeter ).
+
+self assert: factory oneGram  + factory oneKilometer  = ( factory  oneMeter * 1000 + factory oneGram ).
+
+
+self assert: factory onePeso + (factory oneGram * 1000)  =  (factory oneKilogram + factory onePeso).
+! !
+
+!MeasureTest methodsFor: 'Interaction' stamp: 'Mirko 6/8/2017 14:00:40'!
+test504MeasuresCanBeAddedWithCompositeMeasuresWithAllTheDifferentMeasures
+
+self assert: factory oneHundredCentimeters + factory oneKilogram + factory onePeso  = ( factory oneKilogram + factory  onePeso + factory oneMeter ).
+
+
+self assert: factory onePeso + (factory oneGram * 1000) + factory oneSecond =  (factory oneKilogram + factory onePeso + factory oneSecond ) .
+! !
+
+!MeasureTest methodsFor: 'Interaction' stamp: 'Mirko 6/8/2017 14:07:15'!
+test505MeasuresCanBeAddedWithCompositeMeasuresWhereSomeTypesOfMeasuresAreRepeated
+
+self assert: factory oneHundredCentimeters + factory oneKilogram + factory oneMeter  = ( factory oneKilogram + factory twoMeters ).
+
+
+self assert: factory onePeso + (factory oneGram * 1000) + factory onePeso =  (factory oneKilogram + factory twoPesos ) .
+! !
+
+!MeasureTest methodsFor: 'Interaction' stamp: 'Mirko 6/8/2017 14:26:37'!
+test506InteractionBetweenSubtractionOfFDfferentTypesOfUnitsAreNotCombinable
+
+self assert: factory oneMeter - factory oneKilogram  = (factory oneMeter - factory oneKilogram).
+self deny:  (factory oneMeter - factory oneKilogram) unit = Unit meter .
+self deny:  (factory oneMeter - factory oneKilogram) unit = Unit kilometer .
+
+self assert: factory oneGram  - factory oneKilometer  = ( factory oneGram  - factory oneKilometer).
+self deny:  (factory oneGram  - factory oneKilometer) unit = Unit gram .
+self deny:  (factory oneGram  - factory oneKilometer) unit = Unit kilometer .
+
+self assert: factory onePeso  - factory oneDolar  =  (factory onePeso  - factory oneDolar).
+self deny:  (factory onePeso  - factory oneDolar) unit = Unit peso .
+self deny:  (factory onePeso  - factory oneDolar) unit = Unit dolar .
+
+self assert: factory onePeso - factory oneGram  =  (factory onePeso - factory oneGram).
+self deny:  (factory onePeso - factory oneGram) unit = Unit peso .
+self deny:  (factory onePeso - factory oneGram) unit = Unit gram .
+
+
+
+! !
+
+!MeasureTest methodsFor: 'Interaction' stamp: 'Mirko 6/8/2017 14:37:13'!
+test507MeasuresCanBeSubtractionWithCompositeMeasuresWithAllTheDifferentMeasures
+
+self assert: factory oneHundredCentimeters - factory oneKilogram - factory onePeso  = (factory oneMeter  - factory oneKilogram - factory  onePeso ).
+
+
+self assert: factory onePeso - (factory oneGram * 1000) - factory oneSecond =  ( factory onePeso  - factory oneSecond - factory oneKilogram ) .
+
 ! !
 
 
