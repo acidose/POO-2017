@@ -9,14 +9,25 @@ Magnitude subclass: #Measure
 * aSmallInteger 
 	^self class amount: amount*aSmallInteger unit: self unit.! !
 
-!Measure methodsFor: 'as yet unclassified' stamp: 'Mirko 6/8/2017 14:56:13'!
+!Measure methodsFor: 'as yet unclassified' stamp: 'PR 6/8/2017 18:15:18'!
 + aMeasure 
 |measures|
-	(aMeasure class = CompositeMeasure )ifTrue: [^ aMeasure + self]. 
-	(self class = aMeasure class)ifTrue:
-	[^self class amount: ((amount*unit ratio) + (aMeasure amount*aMeasure unit ratio))/ unit ratio unit: self unit] 
-	ifFalse: [	measures := OrderedCollection new. measures add: self. measures add: aMeasure .
- ^CompositeMeasure new initialize: measures]! !
+	(aMeasure class = CompositeMeasure ) ifTrue: [^ aMeasure + self]. 
+	
+	(self class = aMeasure class) ifTrue: [
+		
+		(unit = aMeasure unit) ifTrue: [
+			^self class amount: amount + aMeasure amount unit: unit.
+		] ifFalse: [
+			^self class amount: (amount + (aMeasure convertTo: unit) amount ) unit: unit
+		]		
+		
+	] ifFalse: [
+		measures := OrderedCollection new. 
+		measures add: self. 
+		measures add: aMeasure .
+ 		^CompositeMeasure new initialize: measures
+	]! !
 
 !Measure methodsFor: 'as yet unclassified' stamp: 'Mirko 6/8/2017 14:27:25'!
 - aDistance 
@@ -30,9 +41,10 @@ Magnitude subclass: #Measure
 < aMeasure
 	^ (amount * unit ratio) < (aMeasure amount * aMeasure unit ratio).! !
 
-!Measure methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 19:31:09'!
+!Measure methodsFor: 'as yet unclassified' stamp: 'PR 6/8/2017 18:44:07'!
 = aMeasure
-	^(aMeasure isKindOf: self class) and: [(amount*unit ratio) = (aMeasure amount * aMeasure unit ratio)].! !
+
+	^(aMeasure isKindOf: self class) and: [ amount = (aMeasure convertTo: unit) amount].! !
 
 !Measure methodsFor: 'as yet unclassified' stamp: 'Mirko 6/6/2017 00:42:33'!
 adaptToNumber: aSmallInteger andSend: aSymbol 
@@ -49,9 +61,14 @@ belong: anOrderedCollection
 	collectVal :=anOrderedCollection collect: [:element | val := val or: (self = element )].
 	^collectVal at: collectVal size.! !
 
-!Measure methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:05:40'!
+!Measure methodsFor: 'as yet unclassified' stamp: 'PR 6/8/2017 17:57:58'!
 convertTo: anUnit
-	^self class amount: (amount * unit ratio) / anUnit ratio unit: anUnit. ! !
+	| convertedAmount standardizedAmount |
+	
+	standardizedAmount := unit convertToStandard: amount.
+	convertedAmount := anUnit convertFromStandard: standardizedAmount.
+
+	^self class amount: convertedAmount unit: anUnit. ! !
 
 !Measure methodsFor: 'as yet unclassified' stamp: 'Mirko 6/7/2017 23:41:52'!
 initializeWithAmount: aNumber withUnit: anUnit 
@@ -78,30 +95,6 @@ amount: aSmallInteger unit: anUnit
 	
 	^self new initializeWithAmount: aSmallInteger withUnit: anUnit. 
 	! !
-
-
-!classDefinition: #Coin category: #'Measure-Solution'!
-Measure subclass: #Coin
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Measure-Solution'!
-
-
-!classDefinition: #Dolar category: #'Measure-Solution'!
-Coin subclass: #Dolar
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Measure-Solution'!
-
-
-!classDefinition: #Peso category: #'Measure-Solution'!
-Coin subclass: #Peso
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Measure-Solution'!
 
 
 !classDefinition: #CompositeMeasure category: #'Measure-Solution'!
@@ -140,6 +133,30 @@ initialize: aOrderedCollection
 	compositeMeasure := aOrderedCollection .! !
 
 
+!classDefinition: #Currency category: #'Measure-Solution'!
+Measure subclass: #Currency
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Measure-Solution'!
+
+
+!classDefinition: #Dolar category: #'Measure-Solution'!
+Currency subclass: #Dolar
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Measure-Solution'!
+
+
+!classDefinition: #Peso category: #'Measure-Solution'!
+Currency subclass: #Peso
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Measure-Solution'!
+
+
 !classDefinition: #Distance category: #'Measure-Solution'!
 Measure subclass: #Distance
 	instanceVariableNames: ''
@@ -155,10 +172,6 @@ to: aDistance
 to: aDistance by: aDistance2 
 	^DistanceInterval from: self to: aDistance by: aDistance2.! !
 
-
-!Distance methodsFor: 'converting' stamp: 'Mirko 6/6/2017 01:58:40'!
-convertTo: anUnit
-	^self class createWithAmount: (amount * unit ratio) / anUnit ratio withUnit: anUnit. ! !
 
 
 !Distance methodsFor: 'initialization' stamp: 'PR 6/1/2017 23:01:27'!
@@ -208,55 +221,6 @@ Measure subclass: #Temperature
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Measure-Solution'!
-
-!Temperature methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:42:05'!
-+ aTemperature
-	| celsius receptorAsCelsius aTemperatureAsCelsius result |
-	
-	(aTemperature unit = unit) ifTrue: [
-		^self class amount: amount + aTemperature amount unit: unit
-	].
-	
-	celsius := Unit celsius.
-	
-	receptorAsCelsius := self convertTo: celsius.
-	aTemperatureAsCelsius := aTemperature convertTo: celsius .
-	
-	result := receptorAsCelsius amount + aTemperatureAsCelsius amount .
-	 ^Temperature amount: result unit: celsius.! !
-
-!Temperature methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:42:21'!
-- aTemperature
-	| celsius receptorAsCelsius aTemperatureAsCelsius result |
-	
-	(aTemperature unit = unit) ifTrue: [
-		^self class amount: amount - aTemperature amount unit: unit
-	].
-	
-	celsius := Unit celsius.
-	
-	receptorAsCelsius := self convertTo: celsius.
-	aTemperatureAsCelsius := aTemperature convertTo: celsius .
-	
-	result := receptorAsCelsius amount - aTemperatureAsCelsius amount .
-	 ^Temperature amount: result unit: celsius.! !
-
-!Temperature methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:28:50'!
-= aTemperature
-	^(aTemperature isKindOf: self class) and: [ (self convertTo: Unit celsius) amount = (aTemperature convertTo: Unit celsius) amount].! !
-
-!Temperature methodsFor: 'as yet unclassified' stamp: 'Mirko 6/7/2017 19:53:54'!
-convertTo: anUnit
-
-	(unit = anUnit) ifTrue: [^self].
-	[ :arg :arg2 | arg +arg2.1] value: 4 value: 5.
-	^self class amount: (anUnit ratio value: amount) unit: anUnit.
-	
-	
-		
-	"self convertToCelsius."
-	"(unit = Unit kelvin ) ifTrue:[^Temperature createCelsiusWithAmount: amount -273.15]
-	ifFalse: [^Temperature createCelsiusWithAmount: (amount -32)*(5/9)]."! !
 
 
 !classDefinition: #Tiempo category: #'Measure-Solution'!
@@ -365,7 +329,7 @@ test101TemperatureRepresentingSameTemperatureShoudBeEqual
 	self assert: factory zeroKelvin = factory zeroKelvin.
 	self assert: factory thirtyTwoFahrenheits = factory thirtyTwoFahrenheits.! !
 
-!MeasureTest methodsFor: 'temperature' stamp: 'PR 6/5/2017 21:23:48'!
+!MeasureTest methodsFor: 'temperature' stamp: 'PR 6/8/2017 16:50:55'!
 test102DifferentTemperatureShouldntBeEqual
 
 	self deny: factory oneCelsius = factory twoCelsius.
@@ -378,12 +342,12 @@ test103ATemperatureCanBeAddedWithAnotherTemperatureWithSameUnit
 	self assert: factory oneCelsius  + factory  oneCelsius = factory twoCelsius.
 	self assert: factory threeKelvin + factory threeKelvin = factory sixKelvin.! !
 
-!MeasureTest methodsFor: 'temperature' stamp: 'PR 6/6/2017 21:38:45'!
+!MeasureTest methodsFor: 'temperature' stamp: 'PR 6/8/2017 18:24:06'!
 test104ATemperatureCanBeAddedWithAnotherTemperatureWithDifferentUnit
 
-	self assert: factory oneCelsius  + factory  threeKelvin = factory minusTwoHundredSixtyNineDotFifteenKelvin .
+	self assert: factory oneCelsius  + factory  threeKelvin = factory minusTwoHundredSixtyNineDotFifteenCelsius .
 	self assert: factory oneCelsius + factory thirtyTwoFahrenheits = factory oneCelsius.
-	self assert: factory threeKelvin + factory thirtyTwoFahrenheits = factory threeKelvin .! !
+	self assert: factory threeKelvin + factory thirtyTwoFahrenheits = factory twoHundredSeventySixDotFifteenKelvin.! !
 
 !MeasureTest methodsFor: 'temperature' stamp: 'PR 6/6/2017 21:39:36'!
 test105ATemperatureCanBeSubstractedWithAnotherTemperatureWithSameUnit
@@ -391,12 +355,10 @@ test105ATemperatureCanBeSubstractedWithAnotherTemperatureWithSameUnit
 	self assert: factory twoCelsius - factory  oneCelsius = factory oneCelsius .
 	self assert: factory thirtyTwoFahrenheits - factory twentyFahrenheits = factory twelveFahrenheits .	! !
 
-!MeasureTest methodsFor: 'temperature' stamp: 'PR 6/6/2017 21:35:41'!
+!MeasureTest methodsFor: 'temperature' stamp: 'PR 6/8/2017 18:33:00'!
 test106ATemperatureCanBeSubstractedWithAnotherTemperatureWithDifferentUnit
 
-	self assert: factory twoCelsius  -  factory thirtyTwoFahrenheits = factory twoCelsius .
-	self assert: factory threeKelvin  -  factory thirtyTwoFahrenheits = factory threeKelvin .
-	self assert: factory thirtyCelsius - factory  threeHundredKelvin = factory threepointEightyFiveCelsius.! !
+	self assert: factory thirtyCelsius - factory  threeHundredKelvin = factory minusFiveHundredFourtyThreeDotFifteenCelsius.! !
 
 
 !MeasureTest methodsFor: 'distance' stamp: 'PR 6/5/2017 21:34:55'!
@@ -405,6 +367,12 @@ test201DistanceRepresentingSameDistanceShoudBeEqual
 	self assert: factory oneMeter = factory oneMeter.
 	self assert: factory oneHundredCentimeters = factory oneHundredCentimeters.
 	self assert: factory oneKilometer = factory oneKilometer.! !
+
+!MeasureTest methodsFor: 'distance' stamp: 'PR 6/8/2017 17:45:40'!
+test202CanConvertADistanceToAnotherDistance
+
+	self assert: (factory oneHundredCentimeters convertTo: factory meter) = factory oneMeter.
+	self assert: (factory oneThousandMeters convertTo: factory kilometer) = factory oneKilometer .! !
 
 
 !MeasureTest methodsFor: 'time' stamp: 'Mirko 6/7/2017 12:20:40'!
@@ -781,6 +749,10 @@ oneKilometer
 oneMeter
 	^Distance amount: 1 unit: Unit meter.! !
 
+!MeasureFactory methodsFor: 'distance' stamp: 'PR 6/8/2017 17:45:13'!
+oneThousandMeters
+	^Distance amount: 1000 unit: Unit meter .! !
+
 !MeasureFactory methodsFor: 'distance' stamp: 'PR 6/6/2017 21:06:13'!
 twoKilometers
 	^Distance amount: 2 unit: Unit kilometer.! !
@@ -790,9 +762,13 @@ twoMeters
 	^Distance amount: 2 unit: Unit meter .! !
 
 
-!MeasureFactory methodsFor: 'temperature' stamp: 'PR 6/6/2017 21:38:14'!
-minusTwoHundredSixtyNineDotFifteenKelvin
-	^Temperature amount: -269.15 unit: Unit kelvin.! !
+!MeasureFactory methodsFor: 'temperature' stamp: 'PR 6/8/2017 18:33:17'!
+minusFiveHundredFourtyThreeDotFifteenCelsius
+	^Temperature amount: -543.15 unit: Unit celsius .! !
+
+!MeasureFactory methodsFor: 'temperature' stamp: 'PR 6/8/2017 18:22:26'!
+minusTwoHundredSixtyNineDotFifteenCelsius
+	^Temperature amount: -269.15 unit: Unit celsius.! !
 
 !MeasureFactory methodsFor: 'temperature' stamp: 'PR 6/6/2017 21:10:15'!
 oneCelsius
@@ -822,10 +798,6 @@ threeHundredKelvin
 threeKelvin
 	^Temperature amount: 3 unit: Unit kelvin.! !
 
-!MeasureFactory methodsFor: 'temperature' stamp: 'PR 6/6/2017 21:14:29'!
-threepointEightyFiveCelsius
-	^Temperature amount: 30- (300-273.15) unit: Unit celsius.! !
-
 !MeasureFactory methodsFor: 'temperature' stamp: 'PR 6/6/2017 21:15:14'!
 twelveFahrenheits
 	^Temperature amount: 12 unit: Unit fahrenheit .! !
@@ -837,6 +809,10 @@ twentyFahrenheits
 !MeasureFactory methodsFor: 'temperature' stamp: 'PR 6/6/2017 21:15:34'!
 twoCelsius
 	^Temperature amount: 2 unit: Unit celsius .! !
+
+!MeasureFactory methodsFor: 'temperature' stamp: 'PR 6/8/2017 18:25:48'!
+twoHundredSeventySixDotFifteenKelvin
+	^Temperature amount: 276.15 unit: Unit kelvin.! !
 
 !MeasureFactory methodsFor: 'temperature' stamp: 'PR 6/6/2017 21:16:14'!
 zeroCelsius
@@ -939,10 +915,15 @@ twoDolars
 twoPesos
 	^Peso amount: 2 unit: Unit peso.! !
 
+
+!MeasureFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/8/2017 18:28:24'!
+minusFiveHundredFourtyThreeDotFifteen
+	self shouldBeImplemented! !
+
 
 !classDefinition: #Unit category: #'Measure-Solution'!
 Object subclass: #Unit
-	instanceVariableNames: 'rate name'
+	instanceVariableNames: 'name conversionFromStandard conversionToStandard'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Measure-Solution'!
@@ -953,6 +934,14 @@ Object subclass: #Unit
 	
 	^(self ratio = anObject ratio) and: [self name = anObject name].! !
 
+!Unit methodsFor: 'inspecting' stamp: 'PR 6/8/2017 17:20:26'!
+convertFromStandard: anAmount
+	^conversionFromStandard value: anAmount.! !
+
+!Unit methodsFor: 'inspecting' stamp: 'PR 6/8/2017 17:20:39'!
+convertToStandard: anAmount
+	^conversionToStandard value: anAmount.! !
+
 !Unit methodsFor: 'inspecting' stamp: 'PR 6/1/2017 20:40:53'!
 printString
 	^name.! !
@@ -962,16 +951,17 @@ ratio
 	^rate.! !
 
 
-!Unit methodsFor: 'initialization' stamp: 'PR 6/1/2017 20:40:33'!
-initializeWithConvertionRate: aConvertionRate withName: aName.
-	rate := aConvertionRate.
+!Unit methodsFor: 'initialization' stamp: 'PR 6/8/2017 17:23:17'!
+initializeWithConversionsTo: aBlock from: anotherBlock withName: aName
+	conversionToStandard := aBlock.
+	conversionFromStandard := anotherBlock.
 	name := aName.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'Unit class' category: #'Measure-Solution'!
 Unit class
-	instanceVariableNames: 'ratio'!
+	instanceVariableNames: ''!
 
 !Unit class methodsFor: 'initialization' stamp: 'PR 6/6/2017 20:45:54'!
 initialize
@@ -980,84 +970,81 @@ initialize
 		! !
 
 
-!Unit class methodsFor: 'creation' stamp: 'PR 6/1/2017 20:39:52'!
-newConvertionRate: aConvertionRate named: aName.
+!Unit class methodsFor: 'creation' stamp: 'PR 6/8/2017 17:24:45'!
+conversionToStandard: aBlock conversionFromStandard: anotherBlock named: aName
+	^self new initializeWithConversionsTo: aBlock from: anotherBlock withName: aName.! !
 
-	^self new initializeWithConvertionRate: aConvertionRate withName: aName.! !
 
-
-!Unit class methodsFor: 'distance creation' stamp: 'PR 6/6/2017 21:16:52'!
+!Unit class methodsFor: 'distance creation' stamp: 'PR 6/8/2017 17:43:40'!
 centimeter
-	^self newConvertionRate:1/100 named: 'centimeter'.! !
+	^self conversionToStandard: [ :amount | amount/100] conversionFromStandard: [ :amount | amount*100 ]  named: 'centimeter'.! !
 
-!Unit class methodsFor: 'distance creation' stamp: 'PR 6/6/2017 21:17:34'!
+!Unit class methodsFor: 'distance creation' stamp: 'PR 6/8/2017 17:49:01'!
 decameter
-	^self newConvertionRate:10 named: 'decameter'.! !
+	^self conversionToStandard: [ :amount | amount*10 ] conversionFromStandard: [ :amount | amount/10 ]  named: 'decameter'.! !
 
-!Unit class methodsFor: 'distance creation' stamp: 'PR 6/6/2017 21:17:44'!
+!Unit class methodsFor: 'distance creation' stamp: 'PR 6/8/2017 17:49:17'!
 decimeter
-	^self newConvertionRate:1/10 named: 'decimeter'.! !
+	^self conversionToStandard: [ :amount | amount/10 ] conversionFromStandard: [ :amount | amount*10 ]  named: 'decimeter'.! !
 
-!Unit class methodsFor: 'distance creation' stamp: 'PR 6/6/2017 21:18:23'!
+!Unit class methodsFor: 'distance creation' stamp: 'PR 6/8/2017 17:50:08'!
 hectometer
-	^self newConvertionRate:100 named: 'hectometer'.! !
+	^self conversionToStandard: [ :amount | amount*100 ] conversionFromStandard: [ :amount | amount/100 ]  named: 'hectometer'.! !
 
-!Unit class methodsFor: 'distance creation' stamp: 'PR 6/6/2017 21:18:29'!
+!Unit class methodsFor: 'distance creation' stamp: 'PR 6/8/2017 17:41:23'!
 kilometer
-	^self newConvertionRate:1000 named: 'kilometer'.! !
+	^self conversionToStandard: [ :amount | amount*1000 ] conversionFromStandard: [ :amount | amount/1000 ]  named: 'celsius'.! !
 
-!Unit class methodsFor: 'distance creation' stamp: 'PR 6/6/2017 21:18:34'!
+!Unit class methodsFor: 'distance creation' stamp: 'PR 6/8/2017 17:33:04'!
 meter
-	^self newConvertionRate:1 named: 'meter'.! !
+	^self conversionToStandard: [ :amount | amount] conversionFromStandard: [ :amount | amount] named: 'meter'.! !
 
-!Unit class methodsFor: 'distance creation' stamp: 'PR 6/6/2017 21:19:48'!
+!Unit class methodsFor: 'distance creation' stamp: 'PR 6/8/2017 17:50:28'!
 millimeter
-	^self newConvertionRate: 1/1000 named: 'millimeter'.! !
+	^self conversionToStandard: [ :amount | amount/1000 ] conversionFromStandard: [ :amount | amount*1000 ]  named: 'millimeter'.! !
 
 
-!Unit class methodsFor: 'temperature creation' stamp: 'PR 6/6/2017 20:44:10'!
+!Unit class methodsFor: 'temperature creation' stamp: 'PR 6/8/2017 17:28:24'!
 celsius
-	^self new initializeWithConvertionRate: 1 withName: 'celsius'.! !
+	^self conversionToStandard: [ :amount | amount] conversionFromStandard: [ :amount | amount]  named: 'celsius'.! !
 
-!Unit class methodsFor: 'temperature creation' stamp: 'PR 6/6/2017 21:17:53'!
+!Unit class methodsFor: 'temperature creation' stamp: 'PR 6/8/2017 17:31:07'!
 fahrenheit
-	"TODO: hay que ver el tema del rate"
-	
-	^self newConvertionRate: 273.15 named: 'fahrenheit' ! !
+	^self conversionToStandard: [ :amount | (amount - 32) / 1.8] conversionFromStandard: [ :amount | amount * 1.8 + 32 ] named: 'fahrenheit' ! !
 
-!Unit class methodsFor: 'temperature creation' stamp: 'PR 6/6/2017 21:19:21'!
+!Unit class methodsFor: 'temperature creation' stamp: 'PR 6/8/2017 18:19:12'!
 kelvin
-	^self newConvertionRate: 273.15 named: 'kelvin' ! !
+	^self conversionToStandard: [ :amount | amount - 273.15 ] conversionFromStandard: [ :amount | amount + 273.15 ] named: 'kelvin' ! !
 
 
-!Unit class methodsFor: 'mass creation' stamp: 'PR 6/6/2017 21:18:00'!
+!Unit class methodsFor: 'mass creation' stamp: 'PR 6/8/2017 17:50:44'!
 gram
-	^self newConvertionRate: 1 named: 'gram'.! !
+	^self conversionToStandard: [ :amount | amount] conversionFromStandard: [ :amount | amount]  named: 'gram'.! !
 
-!Unit class methodsFor: 'mass creation' stamp: 'PR 6/6/2017 21:19:28'!
+!Unit class methodsFor: 'mass creation' stamp: 'PR 6/8/2017 17:51:32'!
 kilogram
-	^self newConvertionRate: 1000 named: 'kilogram'. ! !
+	^self conversionToStandard: [ :amount | amount*1000 ] conversionFromStandard: [ :amount | amount/1000 ]  named: 'kilogram'.! !
 
 
-!Unit class methodsFor: 'time creation' stamp: 'Mirko 6/7/2017 12:38:41'!
+!Unit class methodsFor: 'time creation' stamp: 'PR 6/8/2017 17:53:16'!
 hour
-	^self new initializeWithConvertionRate: 60 withName: 'hour' ! !
+	^self conversionToStandard: [ :amount | amount ] conversionFromStandard: [ :amount | amount ]  named: 'hour'.! !
 
-!Unit class methodsFor: 'time creation' stamp: 'Mirko 6/7/2017 12:25:00'!
+!Unit class methodsFor: 'time creation' stamp: 'PR 6/8/2017 17:53:10'!
 minute
-	^self new initializeWithConvertionRate: 1 withName: 'minute'. ! !
+	^self conversionToStandard: [ :amount | amount/60 ] conversionFromStandard: [ :amount | amount*60 ]  named: 'minute'.! !
 
-!Unit class methodsFor: 'time creation' stamp: 'Mirko 6/7/2017 12:40:04'!
+!Unit class methodsFor: 'time creation' stamp: 'PR 6/8/2017 18:39:04'!
 second
-	^self new initializeWithConvertionRate: 1/60 withName: 'second'.! !
+	^self conversionToStandard: [ :amount | amount/3600 ] conversionFromStandard: [ :amount | amount*3600 ]  named: 'second'.! !
 
 
-!Unit class methodsFor: 'coin creation' stamp: 'Mirko 6/7/2017 14:53:30'!
+!Unit class methodsFor: 'currency creation' stamp: 'PR 6/8/2017 17:53:34'!
 dolar
-	^self new initializeWithConvertionRate: 1 withName: 'dolar'.! !
+	^self conversionToStandard: [ :amount | amount] conversionFromStandard: [ :amount | amount]  named: 'dolar'.! !
 
-!Unit class methodsFor: 'coin creation' stamp: 'Mirko 6/7/2017 14:59:36'!
+!Unit class methodsFor: 'currency creation' stamp: 'PR 6/8/2017 17:53:49'!
 peso
-	^self new initializeWithConvertionRate: 1 withName: 'peso'.! !
+	^self conversionToStandard: [ :amount | amount] conversionFromStandard: [ :amount | amount]  named: 'peso'.! !
 
 Unit initialize!
