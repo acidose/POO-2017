@@ -9,10 +9,13 @@ Magnitude subclass: #Measure
 * aSmallInteger 
 	^self class amount: amount*aSmallInteger unit: self unit.! !
 
-!Measure methodsFor: 'as yet unclassified' stamp: 'Mirko 6/7/2017 21:21:49'!
+!Measure methodsFor: 'as yet unclassified' stamp: 'Mirko 6/8/2017 01:02:42'!
 + aMeasure 
+|measures|
 	(self class = aMeasure class)ifTrue:
-	[^self class amount: ((amount*unit ratio) + (aMeasure amount*aMeasure unit ratio))/ unit ratio unit: self unit]! !
+	[^self class amount: ((amount*unit ratio) + (aMeasure amount*aMeasure unit ratio))/ unit ratio unit: self unit] 
+	ifFalse: [	measures := OrderedCollection new. measures add: self. measures add: aMeasure .
+ ^CompositeMeasure new initialize: measures]! !
 
 !Measure methodsFor: 'as yet unclassified' stamp: 'Mirko 6/6/2017 03:40:20'!
 - aDistance 
@@ -38,14 +41,22 @@ adaptToNumber: aSmallInteger andSend: aSymbol
 amount
 	^amount.! !
 
+!Measure methodsFor: 'as yet unclassified' stamp: 'Mirko 6/8/2017 01:58:27'!
+belong: anOrderedCollection
+	|val collectVal|
+	val := false.
+	collectVal :=anOrderedCollection collect: [:element | val := val or: (self = element )].
+	^collectVal at: collectVal size.! !
+
 !Measure methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:05:40'!
 convertTo: anUnit
 	^self class amount: (amount * unit ratio) / anUnit ratio unit: anUnit. ! !
 
-!Measure methodsFor: 'as yet unclassified' stamp: 'PR 6/5/2017 18:59:27'!
+!Measure methodsFor: 'as yet unclassified' stamp: 'Mirko 6/7/2017 23:41:52'!
 initializeWithAmount: aNumber withUnit: anUnit 
 	amount := aNumber.
-	unit := anUnit.! !
+	unit := anUnit.
+	! !
 
 !Measure methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:05:53'!
 negated
@@ -61,9 +72,11 @@ unit
 Measure class
 	instanceVariableNames: ''!
 
-!Measure class methodsFor: 'as yet unclassified' stamp: 'PR 6/6/2017 21:04:47'!
+!Measure class methodsFor: 'as yet unclassified' stamp: 'Mirko 6/7/2017 21:49:43'!
 amount: aSmallInteger unit: anUnit 
-	^self new initializeWithAmount: aSmallInteger withUnit: anUnit ! !
+	
+	^self new initializeWithAmount: aSmallInteger withUnit: anUnit. 
+	! !
 
 
 !classDefinition: #Coin category: #'Measure-Solution'!
@@ -88,6 +101,33 @@ Coin subclass: #Peso
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Measure-Solution'!
+
+
+!classDefinition: #CompositeMeasure category: #'Measure-Solution'!
+Measure subclass: #CompositeMeasure
+	instanceVariableNames: 'compositeMeasure'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Measure-Solution'!
+
+!CompositeMeasure methodsFor: 'as yet unclassified' stamp: 'Mirko 6/8/2017 02:05:01'!
+= anCompositeMeasure
+	^(self included: anCompositeMeasure  ) and: (anCompositeMeasure  included: self ).! !
+
+!CompositeMeasure methodsFor: 'as yet unclassified' stamp: 'Mirko 6/7/2017 23:59:11'!
+compositeMeasure
+	^compositeMeasure ! !
+
+!CompositeMeasure methodsFor: 'as yet unclassified' stamp: 'Mirko 6/8/2017 02:00:36'!
+included: anCompositeMeasure
+	|val collectVal|
+	val:= true.
+	collectVal :=self compositeMeasure collect: [:element | val := val and: (element belong: anCompositeMeasure compositeMeasure )].
+	^collectVal at: collectVal size.! !
+
+!CompositeMeasure methodsFor: 'as yet unclassified' stamp: 'Mirko 6/8/2017 01:02:59'!
+initialize: aOrderedCollection
+	compositeMeasure := aOrderedCollection .! !
 
 
 !classDefinition: #Distance category: #'Measure-Solution'!
@@ -515,7 +555,7 @@ test408ACoinCanBeNegated
 	self assert: factory onePeso negated negated = factory onePeso.! !
 
 
-!MeasureTest methodsFor: 'Interaction' stamp: 'Mirko 6/7/2017 21:08:17'!
+!MeasureTest methodsFor: 'Interaction' stamp: 'Mirko 6/8/2017 01:08:00'!
 test500InteractionBetweenSumOfDifferentUnitsNoCombinanUnits
 
 self assert: factory oneMeter + factory oneKilogram  = (factory oneMeter + factory oneKilogram).
@@ -533,6 +573,18 @@ self deny:  (factory onePeso  + factory oneDolar) unit = Unit dolar .
 self assert: factory onePeso + factory oneGram  =  (factory onePeso + factory oneGram).
 self deny:  (factory onePeso + factory oneGram) unit = Unit peso .
 self deny:  (factory onePeso + factory oneGram) unit = Unit gram .
+! !
+
+!MeasureTest methodsFor: 'Interaction' stamp: 'Mirko 6/8/2017 00:48:21'!
+test501InteractionBetweenSumOfDifferentUnitsNoCombinanUnitsAreTheSameRgardlessOfTheSumOrder
+
+self assert: factory oneMeter + factory oneKilogram  = ( factory oneKilogram + factory oneMeter ).
+
+self assert: factory oneGram  + factory oneKilometer  = ( factory oneKilometer +factory oneGram ).
+
+self assert: factory onePeso  + factory oneDolar  =  (factory oneDolar + factory onePeso).
+
+self assert: factory onePeso + factory oneGram  =  (factory oneGram + factory onePeso).
 ! !
 
 
