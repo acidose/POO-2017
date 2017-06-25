@@ -171,6 +171,100 @@ test11successfullCheckoutLogsSaleInSalesBookAndGivesTicketWithCorrectAmount
 	
 	! !
 
+!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 19:22:28'!
+test12checkoutFromAStolenCardThrowsException
+	
+	| aCashier aCart aStolenCard aMerchantProcessor |
+	
+	aCart := factory cart.
+	aCart add: factory bookOne.
+	aMerchantProcessor := factory merchantProcessorWithStolenCard.
+	aCashier := factory cashierWithMerchantProcessor: aMerchantProcessor.
+	aStolenCard := factory stolenCard.
+	
+	self
+		should: [ aCashier checkout: aCart with: aStolenCard. ]
+		raise: Error - MessageNotUnderstood 
+		withExceptionDo: [ :anError |
+			self assert: anError messageText = MerchantProcessor stolenCardError .
+			self assert: aCashier sales isEmpty.]
+	
+	
+	
+	
+	! !
+
+!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 19:59:41'!
+test13cannotCreateCardWithEmptyOwner
+	
+	self
+		should: [ Card number: 1234123412341234 expirationDate: Date today owner: '']
+		raise: Error - MessageNotUnderstood 
+		withExceptionDo: [ :anError |
+			self assert: anError messageText = Card emptyOwnerError]
+	
+	
+	
+	
+	! !
+
+!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 20:01:52'!
+test14cannotCreateCardWithInvalidNumberSize
+	
+	self
+		should: [ Card number: 1234 expirationDate: Date today owner: 'Roberto']
+		raise: Error - MessageNotUnderstood 
+		withExceptionDo: [ :anError |
+			self assert: anError messageText = Card invalidNumberForCardError]
+	
+	
+	
+	
+	! !
+
+
+!classDefinition: #Card category: #'Tus-Libros-Solution'!
+Object subclass: #Card
+	instanceVariableNames: 'number expirationDate owner today'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Tus-Libros-Solution'!
+
+!Card methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 19:54:43'!
+hasValidNumber
+	^number printString size = 16.! !
+
+!Card methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 18:32:48'!
+initializeWithNumber: anInteger expirationDate: aDate owner: aString
+	number := anInteger.
+	expirationDate := aDate.
+	owner := aString.! !
+
+!Card methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 18:31:40'!
+isExpired: aDateToday
+	^expirationDate < aDateToday. ! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Card class' category: #'Tus-Libros-Solution'!
+Card class
+	instanceVariableNames: ''!
+
+!Card class methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 20:00:07'!
+emptyOwnerError
+	^'Cannot create card with empty owner'.! !
+
+!Card class methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 20:02:18'!
+invalidNumberForCardError
+	^'Cannot create card with invalid number size'.! !
+
+!Card class methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 19:57:28'!
+number: anInteger expirationDate: aDate owner: aString
+	(anInteger printString size = 16) ifFalse: [ self error: Card invalidNumberForCardError ].
+	(aString size > 0) ifFalse: [ self error: Card emptyOwnerError ].
+
+	^self new initializeWithNumber: anInteger expirationDate: aDate owner: aString.! !
+
 
 !classDefinition: #Cart category: #'Tus-Libros-Solution'!
 Object subclass: #Cart
@@ -237,30 +331,33 @@ newWithCatalog: aCatalog
 
 !classDefinition: #Cashier category: #'Tus-Libros-Solution'!
 Object subclass: #Cashier
-	instanceVariableNames: 'priceList today salesBook'
+	instanceVariableNames: 'priceList today salesBook merchantProcessor'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Tus-Libros-Solution'!
 
-!Cashier methodsFor: 'as yet unclassified' stamp: 'PR 6/22/2017 22:43:38'!
+!Cashier methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 19:55:41'!
 checkout: aCart with: aCard
 	| ticket |
 	
 	aCart isEmpty ifTrue:[self error: Cashier cannotCheckoutEmptyCartError.].
 	
-	(aCard < Date today) ifTrue: [self error: Cashier cannotCheckoutWithExpiredCardError].
+	(aCard isExpired: today) ifTrue: [self error: Cashier cannotCheckoutWithExpiredCardError].
 	
 	ticket := 0.
 	aCart contents do: [ :aBook | ticket := ticket + (self price: aBook).].
 	
+	merchantProcessor debit: ticket from: aCard.
+	
 	salesBook add: ticket.
 	^ticket.! !
 
-!Cashier methodsFor: 'as yet unclassified' stamp: 'PR 6/22/2017 22:53:19'!
-initializeWithPriceList: aPriceList withToday: aDate withSalesBook: anOrderedCollection
+!Cashier methodsFor: 'as yet unclassified' stamp: 'PR 6/23/2017 21:12:05'!
+initializeWithPriceList: aPriceList withToday: aDate withSalesBook: anOrderedCollection withMerchantProcessor: aMerchantProcessor
 	priceList := aPriceList.
 	today := aDate.
-	salesBook := anOrderedCollection.! !
+	salesBook := anOrderedCollection.
+	merchantProcessor := aMerchantProcessor.! !
 
 !Cashier methodsFor: 'as yet unclassified' stamp: 'PR 6/15/2017 19:45:57'!
 price: aBook
@@ -280,13 +377,66 @@ Cashier class
 cannotCheckoutEmptyCartError
 	^'Empty Cart, cannot checkout'.! !
 
+!Cashier class methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 18:22:13'!
+cannotCheckoutFromStolenCardError
+	^'The card is stolen, cannot checkout'.! !
+
 !Cashier class methodsFor: 'as yet unclassified' stamp: 'PR 6/22/2017 19:21:10'!
 cannotCheckoutWithExpiredCardError
 	^'Cannot checkout with expired card'.! !
 
-!Cashier class methodsFor: 'as yet unclassified' stamp: 'PR 6/22/2017 22:53:39'!
-newWithPriceList: aPriceList withToday: aDate withSalesBook: anOrderedCollection.
-	^self new initializeWithPriceList: aPriceList withToday: aDate withSalesBook: anOrderedCollection.! !
+!Cashier class methodsFor: 'as yet unclassified' stamp: 'PR 6/23/2017 21:10:43'!
+newWithPriceList: aPriceList withToday: aDate withSalesBook: anOrderedCollection withMerchantProcessor: aMerchantProcessor.
+	^self new initializeWithPriceList: aPriceList withToday: aDate withSalesBook: anOrderedCollection withMerchantProcessor: aMerchantProcessor.! !
+
+
+!classDefinition: #MerchantProcessor category: #'Tus-Libros-Solution'!
+Object subclass: #MerchantProcessor
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Tus-Libros-Solution'!
+
+!MerchantProcessor methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 17:30:30'!
+debit: anAmount from: aCard
+	self shouldBeImplemented.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'MerchantProcessor class' category: #'Tus-Libros-Solution'!
+MerchantProcessor class
+	instanceVariableNames: ''!
+
+!MerchantProcessor class methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 19:01:33'!
+stolenCardError
+	^'Cannot debit from a stolen card'.! !
+
+
+!classDefinition: #MerchantProcessorStub category: #'Tus-Libros-Solution'!
+MerchantProcessor subclass: #MerchantProcessorStub
+	instanceVariableNames: 'block'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Tus-Libros-Solution'!
+
+!MerchantProcessorStub methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 18:36:22'!
+debit: anAmount from: aCard
+	block value: anAmount value: aCard.! !
+
+!MerchantProcessorStub methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 17:27:00'!
+initializeWithExecution: aBlockClosure 
+
+	block := aBlockClosure! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'MerchantProcessorStub class' category: #'Tus-Libros-Solution'!
+MerchantProcessorStub class
+	instanceVariableNames: ''!
+
+!MerchantProcessorStub class methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 18:58:49'!
+executeOnDebitFrom: aBlockClosure 
+	^self new initializeWithExecution: aBlockClosure.! !
 
 
 !classDefinition: #TusLibrosFactory category: #'Tus-Libros-Solution'!
@@ -304,17 +454,25 @@ bookOne
 bookTwo
 	^self catalog keys at: 2.! !
 
-!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/22/2017 18:48:49'!
+!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 18:32:18'!
 card
-	^Date today + (Duration days: 30).! !
+	^Card number: 1234123412341234 expirationDate: Date today + (Duration days: 30) owner: 'Robertito Fulanito'.! !
+
+!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 19:35:35'!
+cardWithInvalidNumber
+	^Card number: 1234 expirationDate: Date today owner: 'Jose'.! !
 
 !TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/14/2017 22:43:15'!
 cart
 	^Cart newWithCatalog: self catalog.! !
 
-!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/22/2017 22:30:14'!
+!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 18:16:43'!
 cashier
-	^Cashier newWithPriceList: self catalog withToday: Date today withSalesBook: self salesBook.! !
+	^Cashier newWithPriceList: self catalog withToday: Date today withSalesBook: self salesBook withMerchantProcessor: self emptyMerchantProcessor.! !
+
+!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 18:39:26'!
+cashierWithMerchantProcessor: aMerchantProcessor 
+	^Cashier newWithPriceList: self catalog withToday: Date today withSalesBook: self salesBook withMerchantProcessor: aMerchantProcessor.! !
 
 !TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/18/2017 21:32:46'!
 catalog
@@ -327,14 +485,30 @@ catalog
 	
 	^books.! !
 
-!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/22/2017 18:33:19'!
+!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 19:00:55'!
+emptyMerchantProcessor
+	^MerchantProcessorStub executeOnDebitFrom: [ :anAmount :aCard ].! !
+
+!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 18:32:26'!
 expiredCard
-	^Date newDay: 31 month: 'March' year: 2017.! !
+	^Card number: 1234123412341234 expirationDate: Date today - (Duration days: 30) owner: 'Gerardo Expirado'.! !
 
 !TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/13/2017 18:44:05'!
 invalidBookOne
 	^9999.! !
 
+!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 18:15:12'!
+merchantProcessor
+	self shouldBeImplemented! !
+
+!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 19:00:08'!
+merchantProcessorWithStolenCard
+	^MerchantProcessorStub executeOnDebitFrom: [ :anAmount :aCard | self error: MerchantProcessor stolenCardError ]! !
+
 !TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/22/2017 22:54:08'!
 salesBook
 	^OrderedCollection new.! !
+
+!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 18:32:34'!
+stolenCard
+	^Card number: 8888888888888888 expirationDate: Date today + (Duration days: 30) owner: 'Roberto Fraudulento'.! !
