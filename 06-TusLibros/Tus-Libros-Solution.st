@@ -14,7 +14,7 @@ test01ANewCartContainsNothing
 
 	self assert: factory cart isEmpty .! !
 
-!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'PR 6/13/2017 15:58:53'!
+!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'Mirko 6/15/2017 14:16:37'!
 test02AddingABookToACartThenCartContainsThatBook
 	
 	|aBook aCart |
@@ -26,9 +26,9 @@ test02AddingABookToACartThenCartContainsThatBook
 	
 	self deny: aCart isEmpty .
 	self assert: (aCart includes: aBook).
-	self assert: aCart size = 1.! !
+	self assert: aCart numberOfBook = 1.! !
 
-!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'PR 6/13/2017 15:59:09'!
+!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'Mirko 6/15/2017 14:19:01'!
 test03AddingSameBookToACartThenCartContainsAllTheCopiesAdded
 	
 	|aBook aCart |
@@ -40,10 +40,10 @@ test03AddingSameBookToACartThenCartContainsAllTheCopiesAdded
 	aCart add: aBook.
 	aCart add: aBook.
 	
-	self assert: (aCart occurrencesOf: aBook) = 3.
-	self assert: aCart size = 3.! !
+	self assert: (aCart occurrencesOfBook: aBook) = 3.
+	self assert: aCart numberOfBook = 3.! !
 
-!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'PR 6/13/2017 18:35:20'!
+!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'Mirko 6/15/2017 14:20:07'!
 test04CanAddMultipleCopiesToCartAtOnce
 	
 	|aBook aCart |
@@ -54,10 +54,10 @@ test04CanAddMultipleCopiesToCartAtOnce
 	aCart add: aBook withOccurrences: 4.
 	aCart add: aBook withOccurrences: 3.
 
-	self assert: (aCart occurrencesOf: aBook) = 7.
-	self assert: aCart size = 7.! !
+	self assert: (aCart occurrencesOfBook: aBook) = 7.
+	self assert: aCart numberOfBook = 7.! !
 
-!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'PR 6/13/2017 18:36:02'!
+!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'Mirko 6/15/2017 14:20:49'!
 test05ACartCanHoldDifferentItems
 	
 	|aBook aCart anotherBook |
@@ -69,12 +69,30 @@ test05ACartCanHoldDifferentItems
 	aCart add: aBook withOccurrences: 4.
 	aCart add: anotherBook withOccurrences: 3.
 
-	self assert: (aCart occurrencesOf: aBook) = 4.
-	self assert: (aCart occurrencesOf: anotherBook) = 3.
-	self assert: aCart size = 7.! !
+	self assert: (aCart occurrencesOfBook: aBook) = 4.
+	self assert: (aCart occurrencesOfBook: anotherBook) = 3.
+	self assert: aCart numberOfBook = 7.! !
 
-!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'PR 6/14/2017 22:48:45'!
-test07AddingBookFromOutsideCatalogToCartShouldThrowError
+!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'Mirko 6/15/2017 14:21:13'!
+test06CanRemoveItemsFromACart
+	
+	"|aBook aCart anotherBook |
+	
+	aBook := factory bookOne.
+	anotherBook := factory bookTwo.
+	aCart := factory cart.
+	aCart add: aBook withOccurrences: 4.
+	aCart add: anotherBook withOccurrences: 3.
+	
+	aCart remove: aBook.
+	aCart remove: anotherBook.
+
+	self assert: (aCart occurrencesOf: aBook) = 3.
+	self assert: (aCart occurrencesOf: anotherBook) = 2.
+	self assert: aCart size = 5."! !
+
+!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'Mirko 6/15/2017 14:15:35'!
+test07CannotAddBooksFromOtherEditorsToACart
 	
 	| aCart anInvalidBook |
 	
@@ -85,230 +103,85 @@ test07AddingBookFromOutsideCatalogToCartShouldThrowError
 		should: [ aCart add: anInvalidBook ]
 		raise: Error - MessageNotUnderstood 
 		withExceptionDo: [ :anError |
-			self assert: anError messageText = Cart invalidBookError ]
+			self assert: anError messageText = Cart invalidBookError ].
+			self assert: aCart isEmpty .
 	
 	
 	! !
 
-!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'PR 6/15/2017 19:14:24'!
-test08AddingNonPositiveAmountOfBooksToCartShouldThrowError
+!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'Mirko 6/15/2017 14:25:32'!
+test08YouCanNotGoToTheCashierWithAnEmptyCart
 	
-	| aCart aBook |
+	| aCart aCashier |
 	
 	aCart := factory cart.
-	aBook := factory bookOne.
-	
+	aCashier := factory cashier.
 	self
-		should: [ aCart add: aBook withOccurrences: -3 ]
+		should: [ aCashier  makeAPurchase: aCart ]
 		raise: Error - MessageNotUnderstood 
 		withExceptionDo: [ :anError |
-			self assert: anError messageText = Cart invalidAmount.
-			self assert: aCart isEmpty
-		]
+			self assert: anError messageText = Cashier invalidCartError ].
 	
 	
 	! !
 
-!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'PR 6/22/2017 22:39:17'!
-test09WhenACashierCheckoutsAnEmptyCartAnErrorIsThrown
+!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'Mirko 6/15/2017 14:35:26'!
+test09
 	
-	| anEmptyCart aCashier aCard |
-	
-	anEmptyCart := factory cart.
-	aCashier := factory cashier.
-	aCard := factory card.
-	
-	self
-		should: [ aCashier checkout: anEmptyCart with: aCard. ]
-		raise: Error - MessageNotUnderstood 
-		withExceptionDo: [ :anError |
-			self assert: anError messageText = Cashier cannotCheckoutEmptyCartError.
-			self assert: aCashier sales isEmpty.
-			]
-	
-	
-	! !
-
-!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'PR 6/22/2017 22:40:08'!
-test10CheckoutWithExpiredCardShouldThrowError
-	
-	| aCashier expiredCard aBook aCart |
+	| aCart aCashier |
 	
 	aCart := factory cart.
-	aBook := factory bookOne.
-	aCart add: aBook.
-	
 	aCashier := factory cashier.
-	expiredCard := factory expiredCard.
-	
-	self
-		should: [ aCashier checkout: aCart with: expiredCard. ]
-		raise: Error - MessageNotUnderstood
-		withExceptionDo: [ :anError |
-			self assert: anError messageText = Cashier cannotCheckoutWithExpiredCardError.
-			self assert: aCashier sales isEmpty.]
-	
-	
-	! !
-
-!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'PR 6/22/2017 22:43:08'!
-test11successfullCheckoutLogsSaleInSalesBookAndGivesTicketWithCorrectAmount
-	
-	| aCashier aCart ticket aCard |
-	
-	aCart := factory cart.
-	aCart add: factory bookOne withOccurrences: 3.
-	aCart add: factory bookTwo withOccurrences: 4.
-	aCashier := factory cashier.
-	aCard := factory card.
-	
-	ticket :=  aCashier checkout: aCart with: aCard. 
-	
-	self assert: ticket = 10.
-	self assert: aCashier sales size = 1.
-	self assert: aCashier sales last  = 10.
-	
-	
-	! !
-
-!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 19:22:28'!
-test12checkoutFromAStolenCardThrowsException
-	
-	| aCashier aCart aStolenCard aMerchantProcessor |
-	
-	aCart := factory cart.
 	aCart add: factory bookOne.
-	aMerchantProcessor := factory merchantProcessorWithStolenCard.
-	aCashier := factory cashierWithMerchantProcessor: aMerchantProcessor.
-	aStolenCard := factory stolenCard.
 	
-	self
-		should: [ aCashier checkout: aCart with: aStolenCard. ]
-		raise: Error - MessageNotUnderstood 
-		withExceptionDo: [ :anError |
-			self assert: anError messageText = MerchantProcessor stolenCardError .
-			self assert: aCashier sales isEmpty.]
-	
-	
-	
-	
-	! !
-
-!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 19:59:41'!
-test13cannotCreateCardWithEmptyOwner
-	
-	self
-		should: [ Card number: 1234123412341234 expirationDate: Date today owner: '']
-		raise: Error - MessageNotUnderstood 
-		withExceptionDo: [ :anError |
-			self assert: anError messageText = Card emptyOwnerError]
-	
-	
-	
-	
-	! !
-
-!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 20:01:52'!
-test14cannotCreateCardWithInvalidNumberSize
-	
-	self
-		should: [ Card number: 1234 expirationDate: Date today owner: 'Roberto']
-		raise: Error - MessageNotUnderstood 
-		withExceptionDo: [ :anError |
-			self assert: anError messageText = Card invalidNumberForCardError]
-	
-	
-	
-	
-	! !
-
-
-!classDefinition: #Card category: #'Tus-Libros-Solution'!
-Object subclass: #Card
-	instanceVariableNames: 'number expirationDate owner today'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Tus-Libros-Solution'!
-
-!Card methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 19:54:43'!
-hasValidNumber
-	^number printString size = 16.! !
-
-!Card methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 18:32:48'!
-initializeWithNumber: anInteger expirationDate: aDate owner: aString
-	number := anInteger.
-	expirationDate := aDate.
-	owner := aString.! !
-
-!Card methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 18:31:40'!
-isExpired: aDateToday
-	^expirationDate < aDateToday. ! !
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'Card class' category: #'Tus-Libros-Solution'!
-Card class
-	instanceVariableNames: ''!
-
-!Card class methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 20:00:07'!
-emptyOwnerError
-	^'Cannot create card with empty owner'.! !
-
-!Card class methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 20:02:18'!
-invalidNumberForCardError
-	^'Cannot create card with invalid number size'.! !
-
-!Card class methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 19:57:28'!
-number: anInteger expirationDate: aDate owner: aString
-	(anInteger printString size = 16) ifFalse: [ self error: Card invalidNumberForCardError ].
-	(aString size > 0) ifFalse: [ self error: Card emptyOwnerError ].
-
-	^self new initializeWithNumber: anInteger expirationDate: aDate owner: aString.! !
+	self assert: (aCashier makeAPurchase: aCart  ) = 5.! !
 
 
 !classDefinition: #Cart category: #'Tus-Libros-Solution'!
 Object subclass: #Cart
-	instanceVariableNames: 'contents catalog'
+	instanceVariableNames: 'editorialBooks contents'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Tus-Libros-Solution'!
 
-!Cart methodsFor: 'as yet unclassified' stamp: 'PR 6/15/2017 19:11:55'!
+!Cart methodsFor: 'as yet unclassified' stamp: 'Mirko 6/13/2017 21:21:49'!
 add: aBook
-	self add: aBook withOccurrences: 1.! !
-
-!Cart methodsFor: 'as yet unclassified' stamp: 'PR 6/18/2017 21:30:46'!
-add: anItem withOccurrences: anAmount 
-	anAmount <= 0 ifTrue: [^self error: Cart invalidAmount ].
-	(catalog includesKey: anItem) 
-		ifTrue: [contents add: anItem withOccurrences: anAmount.]
+	(editorialBooks includes: aBook) 
+	ifTrue: 
+		[ contents add: aBook]
 	ifFalse:
 		[^self error: Cart invalidBookError]! !
 
-!Cart methodsFor: 'as yet unclassified' stamp: 'PR 6/15/2017 19:47:09'!
+!Cart methodsFor: 'as yet unclassified' stamp: 'Mirko 6/15/2017 14:19:46'!
+add: aSmallInteger withOccurrences: aSmallInteger2 
+	contents add: aSmallInteger withOccurrences: aSmallInteger2 .! !
+
+!Cart methodsFor: 'as yet unclassified' stamp: 'Mirko 6/15/2017 14:40:13'!
 contents
-	^contents copy.! !
+	^contents .! !
 
-!Cart methodsFor: 'as yet unclassified' stamp: 'PR 6/14/2017 22:45:30'!
-includes: anItem
-	^contents includes: anItem.! !
+!Cart methodsFor: 'as yet unclassified' stamp: 'Mirko 6/13/2017 21:28:41'!
+includes: aBook
+	^editorialBooks includes: aBook.! !
 
-!Cart methodsFor: 'as yet unclassified' stamp: 'PR 6/14/2017 22:45:08'!
-initializeWithCatalog: aCatalog
-	catalog := aCatalog.
-	contents := Bag new.! !
+!Cart methodsFor: 'as yet unclassified' stamp: 'Mirko 6/13/2017 21:21:32'!
+initializeWithEditorialBooks: aSet
+	contents := Bag new.
+	editorialBooks := aSet.! !
 
-!Cart methodsFor: 'as yet unclassified' stamp: 'PR 6/14/2017 22:43:58'!
+!Cart methodsFor: 'as yet unclassified' stamp: 'Mirko 6/15/2017 14:18:26'!
 isEmpty
-	^contents isEmpty.! !
+	
+	^contents isEmpty .! !
 
-!Cart methodsFor: 'as yet unclassified' stamp: 'PR 6/14/2017 22:46:22'!
-occurrencesOf: anItem
-	^contents occurrencesOf: anItem.! !
+!Cart methodsFor: 'as yet unclassified' stamp: 'Mirko 6/15/2017 14:17:33'!
+numberOfBook
+	^ contents size! !
 
-!Cart methodsFor: 'as yet unclassified' stamp: 'PR 6/14/2017 22:45:53'!
-size
-	^contents size.! !
+!Cart methodsFor: 'as yet unclassified' stamp: 'Mirko 6/15/2017 14:18:47'!
+occurrencesOfBook: aBook
+	^ contents occurrencesOf: aBook .
+	! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -316,56 +189,34 @@ size
 Cart class
 	instanceVariableNames: ''!
 
-!Cart class methodsFor: 'as yet unclassified' stamp: 'PR 6/14/2017 22:50:11'!
-invalidAmount
-	^'Invalid amount'.! !
-
 !Cart class methodsFor: 'as yet unclassified' stamp: 'PR 6/13/2017 18:52:24'!
 invalidBookError
 	^'Invalid Book'.! !
 
-!Cart class methodsFor: 'as yet unclassified' stamp: 'PR 6/14/2017 22:43:28'!
-newWithCatalog: aCatalog
-	^Cart new initializeWithCatalog: aCatalog.! !
+!Cart class methodsFor: 'as yet unclassified' stamp: 'Mirko 6/13/2017 21:21:05'!
+newWithEditorialBooks: anOrderedCollection
+
+	^Cart new initializeWithEditorialBooks: anOrderedCollection.! !
 
 
 !classDefinition: #Cashier category: #'Tus-Libros-Solution'!
 Object subclass: #Cashier
-	instanceVariableNames: 'priceList today salesBook merchantProcessor'
+	instanceVariableNames: 'priceList'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Tus-Libros-Solution'!
 
-!Cashier methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 19:55:41'!
-checkout: aCart with: aCard
-	| ticket |
-	
-	aCart isEmpty ifTrue:[self error: Cashier cannotCheckoutEmptyCartError.].
-	
-	(aCard isExpired: today) ifTrue: [self error: Cashier cannotCheckoutWithExpiredCardError].
-	
+!Cashier methodsFor: 'as yet unclassified' stamp: 'Mirko 6/15/2017 14:30:08'!
+initializeWithListPrice: aDictionary 
+	priceList := aDictionary .! !
+
+!Cashier methodsFor: 'as yet unclassified' stamp: 'Mirko 6/15/2017 14:42:02'!
+makeAPurchase: aCart 
+	|ticket|
 	ticket := 0.
-	aCart contents do: [ :aBook | ticket := ticket + (self price: aBook).].
-	
-	merchantProcessor debit: ticket from: aCard.
-	
-	salesBook add: ticket.
-	^ticket.! !
-
-!Cashier methodsFor: 'as yet unclassified' stamp: 'PR 6/23/2017 21:12:05'!
-initializeWithPriceList: aPriceList withToday: aDate withSalesBook: anOrderedCollection withMerchantProcessor: aMerchantProcessor
-	priceList := aPriceList.
-	today := aDate.
-	salesBook := anOrderedCollection.
-	merchantProcessor := aMerchantProcessor.! !
-
-!Cashier methodsFor: 'as yet unclassified' stamp: 'PR 6/15/2017 19:45:57'!
-price: aBook
-	^priceList at: aBook.! !
-
-!Cashier methodsFor: 'as yet unclassified' stamp: 'PR 6/22/2017 22:37:11'!
-sales
-	^salesBook copy! !
+	(aCart isEmpty )ifTrue: [^ self error: Cashier invalidCartError]
+		ifFalse: [ aCart contents do: [:aBook| ticket := ticket + (( aCart occurrencesOfBook: aBook ) * priceList at: aBook )] ].
+		^ticket .! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -373,70 +224,13 @@ sales
 Cashier class
 	instanceVariableNames: ''!
 
-!Cashier class methodsFor: 'as yet unclassified' stamp: 'PR 6/15/2017 19:28:24'!
-cannotCheckoutEmptyCartError
-	^'Empty Cart, cannot checkout'.! !
+!Cashier class methodsFor: 'as yet unclassified' stamp: 'Mirko 6/15/2017 14:32:09'!
+invalidCartError
+	^ 'Invalid Cart, this is empty'! !
 
-!Cashier class methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 18:22:13'!
-cannotCheckoutFromStolenCardError
-	^'The card is stolen, cannot checkout'.! !
-
-!Cashier class methodsFor: 'as yet unclassified' stamp: 'PR 6/22/2017 19:21:10'!
-cannotCheckoutWithExpiredCardError
-	^'Cannot checkout with expired card'.! !
-
-!Cashier class methodsFor: 'as yet unclassified' stamp: 'PR 6/23/2017 21:10:43'!
-newWithPriceList: aPriceList withToday: aDate withSalesBook: anOrderedCollection withMerchantProcessor: aMerchantProcessor.
-	^self new initializeWithPriceList: aPriceList withToday: aDate withSalesBook: anOrderedCollection withMerchantProcessor: aMerchantProcessor.! !
-
-
-!classDefinition: #MerchantProcessor category: #'Tus-Libros-Solution'!
-Object subclass: #MerchantProcessor
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Tus-Libros-Solution'!
-
-!MerchantProcessor methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 17:30:30'!
-debit: anAmount from: aCard
-	self shouldBeImplemented.! !
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'MerchantProcessor class' category: #'Tus-Libros-Solution'!
-MerchantProcessor class
-	instanceVariableNames: ''!
-
-!MerchantProcessor class methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 19:01:33'!
-stolenCardError
-	^'Cannot debit from a stolen card'.! !
-
-
-!classDefinition: #MerchantProcessorStub category: #'Tus-Libros-Solution'!
-MerchantProcessor subclass: #MerchantProcessorStub
-	instanceVariableNames: 'block'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Tus-Libros-Solution'!
-
-!MerchantProcessorStub methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 18:36:22'!
-debit: anAmount from: aCard
-	block value: anAmount value: aCard.! !
-
-!MerchantProcessorStub methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 17:27:00'!
-initializeWithExecution: aBlockClosure 
-
-	block := aBlockClosure! !
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'MerchantProcessorStub class' category: #'Tus-Libros-Solution'!
-MerchantProcessorStub class
-	instanceVariableNames: ''!
-
-!MerchantProcessorStub class methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 18:58:49'!
-executeOnDebitFrom: aBlockClosure 
-	^self new initializeWithExecution: aBlockClosure.! !
+!Cashier class methodsFor: 'as yet unclassified' stamp: 'Mirko 6/15/2017 14:29:17'!
+newWithPriceList: aDictionary 
+	^Cashier new initializeWithListPrice: aDictionary .! !
 
 
 !classDefinition: #TusLibrosFactory category: #'Tus-Libros-Solution'!
@@ -446,69 +240,44 @@ Object subclass: #TusLibrosFactory
 	poolDictionaries: ''
 	category: 'Tus-Libros-Solution'!
 
-!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/18/2017 21:26:56'!
+!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/13/2017 19:15:18'!
 bookOne
-	^self catalog keys at: 1.! !
+	^self editorialBooks at: 1.! !
 
-!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/18/2017 21:27:20'!
+!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'Mirko 6/15/2017 14:35:12'!
 bookTwo
-	^self catalog keys at: 2.! !
+	^self editorialBooks at: 2.! !
 
-!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 18:32:18'!
-card
-	^Card number: 1234123412341234 expirationDate: Date today + (Duration days: 30) owner: 'Robertito Fulanito'.! !
-
-!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 19:35:35'!
-cardWithInvalidNumber
-	^Card number: 1234 expirationDate: Date today owner: 'Jose'.! !
-
-!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/14/2017 22:43:15'!
+!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/13/2017 19:10:49'!
 cart
-	^Cart newWithCatalog: self catalog.! !
+	^Cart newWithEditorialBooks: self editorialBooks.! !
 
-!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 18:16:43'!
+!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'Mirko 6/15/2017 14:26:48'!
 cashier
-	^Cashier newWithPriceList: self catalog withToday: Date today withSalesBook: self salesBook withMerchantProcessor: self emptyMerchantProcessor.! !
+	^Cashier newWithPriceList: self listPrice.! !
 
-!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 18:39:26'!
-cashierWithMerchantProcessor: aMerchantProcessor 
-	^Cashier newWithPriceList: self catalog withToday: Date today withSalesBook: self salesBook withMerchantProcessor: aMerchantProcessor.! !
-
-!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/18/2017 21:32:46'!
-catalog
+!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/13/2017 19:14:59'!
+editorialBooks
 	| books |
 	
-	books := Dictionary new.
+	books := OrderedCollection new.
 	
-	books at: 1111 put: 1.
-	books at: 1234 put: 2.
+	books add: 1111.
+	books add: 1234.
 	
 	^books.! !
-
-!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 19:00:55'!
-emptyMerchantProcessor
-	^MerchantProcessorStub executeOnDebitFrom: [ :anAmount :aCard ].! !
-
-!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 18:32:26'!
-expiredCard
-	^Card number: 1234123412341234 expirationDate: Date today - (Duration days: 30) owner: 'Gerardo Expirado'.! !
 
 !TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/13/2017 18:44:05'!
 invalidBookOne
 	^9999.! !
 
-!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 18:15:12'!
-merchantProcessor
-	self shouldBeImplemented! !
-
-!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 19:00:08'!
-merchantProcessorWithStolenCard
-	^MerchantProcessorStub executeOnDebitFrom: [ :anAmount :aCard | self error: MerchantProcessor stolenCardError ]! !
-
-!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/22/2017 22:54:08'!
-salesBook
-	^OrderedCollection new.! !
-
-!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/25/2017 18:32:34'!
-stolenCard
-	^Card number: 8888888888888888 expirationDate: Date today + (Duration days: 30) owner: 'Roberto Fraudulento'.! !
+!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'Mirko 6/15/2017 14:28:22'!
+listPrice
+	|prices|
+	
+	prices := Dictionary new.
+	
+	prices  at: 1111 put: 5.
+	prices at: 1234 put: 10.
+	
+	^prices .! !
