@@ -350,18 +350,63 @@ test22checkoutCartShouldAddToListOfPurchases
 	
 	"Quizas se deberia contar dinamicamente el total, en vez de tenerlo hardcodeado"! !
 
-!TusLibrosTest methodsFor: 'interactionWithRestInterface' stamp: 'PR 6/27/2017 02:32:41'!
+!TusLibrosTest methodsFor: 'interactionWithRestInterface' stamp: 'Mirko 6/27/2017 13:36:00'!
 test23checkoutSeveralCartsWithSameUserShouldHaveAddedInListOfPurchases
 
-	|  |
+
+	| interface cartId aBook otherBook  aCard purchases cartIdTwo contentAux |
+	
+	aBook := factory bookOne.
+	otherBook := factory bookTwo. 
+	interface := factory interface.
+	aCard := factory card .
+	cartId := interface createCartWithUser: 1 pass: 12355.
+	interface addToCartWithId: cartId book: aBook occurences: 2 .
+	
+	interface checkout: cartId card: aCard .
+	
+	cartIdTwo := interface createCartWithUser: 1 pass: 12355. 	
+	interface addToCartWithId: cartIdTwo book: otherBook  occurences: 1.
+ 
+	interface checkout: cartIdTwo card: aCard .
+	
+	contentAux := Set new.
+	contentAux add: factory bookOne .
+	contentAux add: factory bookTwo . 
+	
+	purchases := interface listPurcharsesForUser: 1 password: 12355.
+	self assert: (purchases at: 'total') = 5.
+	self assert: (purchases at: 'content') = contentAux .
 	
 	
 	! !
 
-!TusLibrosTest methodsFor: 'interactionWithRestInterface' stamp: 'PR 6/27/2017 02:33:11'!
+!TusLibrosTest methodsFor: 'interactionWithRestInterface' stamp: 'Mirko 6/27/2017 13:56:23'!
 test24checkoutWithSeveralUsersShouldAllHaveListedTheirPurchases
 
-	|  |
+	| interface cartId aBook otherBook  aCard purchases cartIdTwo purchasesTwo |
+	
+	aBook := factory bookOne.
+	otherBook := factory bookTwo. 
+	interface := factory interface.
+	aCard := factory card .
+	
+	cartId := interface createCartWithUser: 1 pass: 12355.
+	interface addToCartWithId: cartId book: aBook occurences: 2 .
+	interface checkout: cartId card: aCard .
+	
+	cartIdTwo := interface createCartWithUser: 2 pass: 12345. 	
+	interface addToCartWithId: cartIdTwo book: otherBook  occurences: 1.
+	interface checkout: cartIdTwo card: aCard .
+	
+	purchases := interface listPurcharsesForUser: 1 password: 12355.
+	purchasesTwo := interface listPurcharsesForUser: 2 password: 12345.
+	
+	self assert: (purchases at: 'total') = 4.
+	self assert: (purchasesTwo at: 'total') = 1.
+	self assert: (purchases at: 'content') = (interface cartWithId: cartId) contents.
+	self assert: (purchasesTwo at: 'content') = (interface cartWithId: cartIdTwo ) contents.
+	
 	
 	
 	! !
@@ -607,32 +652,6 @@ Object subclass: #TusLibrosFactory
 	poolDictionaries: ''
 	category: 'Tus-Libros-Solution'!
 
-!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/18/2017 21:32:46'!
-catalog
-	| books |
-	
-	books := Dictionary new.
-	
-	books at: 1111 put: 1.
-	books at: 1234 put: 2.
-	
-	^books.! !
-
-!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/22/2017 22:54:08'!
-salesBook
-	^OrderedCollection new.! !
-
-!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/27/2017 01:49:11'!
-users
-	| users |
-	users := Dictionary new.
-	users at: 1 put: 12355.
-	users at: 2 put: 12345.
-	
-	^users.
-	! !
-
-
 !TusLibrosFactory methodsFor: 'books' stamp: 'Mirko 6/26/2017 14:21:22'!
 bookOne
 	^self catalog keys at: 1.! !
@@ -702,6 +721,32 @@ interface
 interfaceWithNoUsers
 	^TusLibrosRestInterface newWithUsers: Dictionary new catalog: self catalog merchantProcessor: self emptyMerchantProcessor .! !
 
+
+!TusLibrosFactory methodsFor: 'testing' stamp: 'PR 6/18/2017 21:32:46'!
+catalog
+	| books |
+	
+	books := Dictionary new.
+	
+	books at: 1111 put: 1.
+	books at: 1234 put: 2.
+	
+	^books.! !
+
+!TusLibrosFactory methodsFor: 'testing' stamp: 'PR 6/22/2017 22:54:08'!
+salesBook
+	^OrderedCollection new.! !
+
+!TusLibrosFactory methodsFor: 'testing' stamp: 'PR 6/27/2017 01:49:11'!
+users
+	| users |
+	users := Dictionary new.
+	users at: 1 put: 12355.
+	users at: 2 put: 12345.
+	
+	^users.
+	! !
+
 
 !classDefinition: #TusLibrosRestInterface category: #'Tus-Libros-Solution'!
 Object subclass: #TusLibrosRestInterface
@@ -726,6 +771,39 @@ initializeWithUsers: anUsersDictionary catalog: anCatalog cashier: aCashier
 	! !
 
 
+!TusLibrosRestInterface methodsFor: 'interface' stamp: 'PR 6/27/2017 02:07:58'!
+addToCartWithId: cartId book: aBook occurences: aNumber
+	(usersCarts at: cartId) add: aBook withOccurrences: aNumber.
+
+ 	! !
+
+!TusLibrosRestInterface methodsFor: 'interface' stamp: 'Mirko 6/27/2017 14:10:13'!
+checkout: aCartId card: aCard
+	
+	| cart total ticket  previousPurchases previousListPurchases previousTotalPurchases |
+	
+	cart := self cartWithId: aCartId.
+	total := cashier checkout: cart with: aCard.
+	(purchases includesKey: aCartId )ifTrue: [
+	previousPurchases:= self purchasesForUser: aCartId. 
+	
+	previousListPurchases := previousPurchases at: 'content'.
+	previousTotalPurchases := previousPurchases at: 'total'.
+	
+	ticket := Dictionary new.
+	ticket at: 'content' put: (cart contents union: previousListPurchases) .
+	ticket at: 'total' put: total + previousTotalPurchases .
+	
+	purchases at: aCartId put: ticket.]
+	
+	ifFalse: [	ticket := Dictionary new.
+	ticket at: 'content' put:cart contents   .
+	ticket at: 'total' put: total .
+	
+	purchases at: aCartId put: ticket.]
+
+		! !
+
 !TusLibrosRestInterface methodsFor: 'interface' stamp: 'PR 6/27/2017 01:56:24'!
 createCartWithUser: userId pass: aPasswordNumber
 	
@@ -736,45 +814,22 @@ createCartWithUser: userId pass: aPasswordNumber
 	^userId.
 ! !
 
-
-!TusLibrosRestInterface methodsFor: 'as yet unclassified' stamp: 'PR 6/27/2017 02:07:58'!
-addToCartWithId: cartId book: aBook occurences: aNumber
-	(usersCarts at: cartId) add: aBook withOccurrences: aNumber.
-
- 	! !
-
-!TusLibrosRestInterface methodsFor: 'as yet unclassified' stamp: 'PR 6/27/2017 02:15:24'!
-checkout: aCartId card: aCard
-	
-	| cart total ticket |
-	cart := self cartWithId: aCartId.
-	total := cashier checkout: cart with: aCard.
-	
-	ticket := Dictionary new.
-	ticket at: 'content' put: cart contents.
-	ticket at: 'total' put: total.
-	
-	purchases at: aCartId put: ticket.! !
-
-!TusLibrosRestInterface methodsFor: 'as yet unclassified' stamp: 'PR 6/27/2017 02:06:11'!
-hasCarts
-	^usersCarts isEmpty not.! !
-
-!TusLibrosRestInterface methodsFor: 'as yet unclassified' stamp: 'PR 6/27/2017 02:10:29'!
+!TusLibrosRestInterface methodsFor: 'interface' stamp: 'PR 6/27/2017 02:10:29'!
 listCartWithId: aCartId
 	^(usersCarts at: aCartId) contents.! !
 
-!TusLibrosRestInterface methodsFor: 'as yet unclassified' stamp: 'PR 6/27/2017 02:21:23'!
+!TusLibrosRestInterface methodsFor: 'interface' stamp: 'PR 6/27/2017 02:21:23'!
 listPurcharsesForUser: userId password: aPasswordNumber 
 	self validateUser: userId withPassword: aPasswordNumber.
 	
 	^self purchasesForUser: userId.! !
 
-!TusLibrosRestInterface methodsFor: 'as yet unclassified' stamp: 'PR 6/27/2017 02:19:37'!
+
+!TusLibrosRestInterface methodsFor: 'private' stamp: 'PR 6/27/2017 02:19:37'!
 purchasesForUser: userId
 	^purchases at: userId! !
 
-!TusLibrosRestInterface methodsFor: 'as yet unclassified' stamp: 'PR 6/27/2017 01:50:13'!
+!TusLibrosRestInterface methodsFor: 'private' stamp: 'PR 6/27/2017 01:50:13'!
 validateUser: userId withPassword: aPasswordNumber 
 	(users includesKey: userId )
 		ifFalse: [self error: TusLibrosRestInterface invalidUserError.].
@@ -782,21 +837,27 @@ validateUser: userId withPassword: aPasswordNumber
 	(users at: userId) = aPasswordNumber
 		ifFalse: [self error: TusLibrosRestInterface invalidPasswordError. ].! !
 
+
+!TusLibrosRestInterface methodsFor: 'testing' stamp: 'PR 6/27/2017 02:06:11'!
+hasCarts
+	^usersCarts isEmpty not.! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'TusLibrosRestInterface class' category: #'Tus-Libros-Solution'!
 TusLibrosRestInterface class
 	instanceVariableNames: ''!
 
-!TusLibrosRestInterface class methodsFor: 'as yet unclassified' stamp: 'PR 6/26/2017 18:39:33'!
+!TusLibrosRestInterface class methodsFor: 'error' stamp: 'PR 6/26/2017 18:39:33'!
 invalidPasswordError
 	^'Invalid password for user'.! !
 
-!TusLibrosRestInterface class methodsFor: 'as yet unclassified' stamp: 'PR 6/26/2017 18:09:55'!
+!TusLibrosRestInterface class methodsFor: 'error' stamp: 'PR 6/26/2017 18:09:55'!
 invalidUserError
 	^'User not registered, out of bounds'! !
 
-!TusLibrosRestInterface class methodsFor: 'as yet unclassified' stamp: 'PR 6/26/2017 23:16:48'!
+
+!TusLibrosRestInterface class methodsFor: 'class initialization' stamp: 'PR 6/26/2017 23:16:48'!
 newWithUsers: anUsersDictionary catalog: aCatalog merchantProcessor: aMerchantProcessor
 
 	| cashier |
