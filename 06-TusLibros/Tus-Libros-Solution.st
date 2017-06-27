@@ -244,25 +244,98 @@ test15checkoutFromACardWithInsuffientFoundsCardThrowsException
 	
 	! !
 
-!TusLibrosTest methodsFor: 'interactionWithMerchantProcessor' stamp: 'Mirko 6/26/2017 16:59:17'!
-test16CartCreateWithAnthenticatedUser
-	
-	|   atusLibrosRestInterface idUser aPass|
-	idUser := 'Michael Jackson'.
-	aPass:= 718929.
-	atusLibrosRestInterface := factory tusLibrosRestInterfaceNoUser.
-		
-	self
-		should: [ atusLibrosRestInterface createCart: idUser pass: aPass.]
-		raise: Error - MessageNotUnderstood 
-		withExceptionDo: [ :anError |
-			self assert: anError messageText = TusLibrosRestInterface cannotCreateACartNotuserError .
-			self assert: (atusLibrosRestInterface idsCarts size = 0).]! !
-
 
 !TusLibrosTest methodsFor: 'setup' stamp: 'PR 6/13/2017 15:23:15'!
 setUp
 	factory := TusLibrosFactory new.! !
+
+
+!TusLibrosTest methodsFor: 'interactionWithRestInterface' stamp: 'PR 6/26/2017 18:43:33'!
+test16createCartWithInvalidUserShouldRaiseInvalidUserError
+	
+	| interface |
+	interface := factory interfaceWithNoUsers.
+		
+	self
+		should: [ interface createCartWithUser: 'Michael Jackson' pass: 718929.]
+		raise: Error - MessageNotUnderstood 
+		withExceptionDo: [ :anError |
+			self assert: anError messageText = TusLibrosRestInterface invalidUserError .
+			self assert: (interface carts size = 0).]! !
+
+!TusLibrosTest methodsFor: 'interactionWithRestInterface' stamp: 'PR 6/26/2017 18:43:20'!
+test17createCartWithWrongPasswordShouldRaiseError
+	
+	| interface |
+	interface := factory interfaceWithUsers.
+		
+	self
+		should: [ interface createCartWithUser: 'Michael Jackson' pass: 718929.]
+		raise: Error - MessageNotUnderstood 
+		withExceptionDo: [ :anError |
+			self assert: anError messageText = TusLibrosRestInterface invalidPasswordError .
+			self assert: (interface carts size = 0).]! !
+
+!TusLibrosTest methodsFor: 'interactionWithRestInterface' stamp: 'PR 6/26/2017 19:55:27'!
+test18createCartWithValidUserAndPasswordShouldCreateAnEmptyCart
+	
+	| interface cartId |
+	
+	interface := factory interfaceWithUsers.
+		
+	cartId := interface createCartWithUser: 'Michael Jackson' pass: 12355.
+	self assert: (interface carts size = 1).
+	self assert: (interface cartWithId: cartId) isEmpty.! !
+
+!TusLibrosTest methodsFor: 'interactionWithRestInterface' stamp: 'PR 6/26/2017 20:21:06'!
+test19cartShouldBeAlwaysTheSameForSameId
+	
+	| interface cartId cart |
+	
+	interface := factory interfaceWithUsers.
+	cartId := interface createCartWithUser: 'Michael Jackson' pass: 12355.
+	
+	cart := interface cartWithId: cartId.
+	
+	self assert: (interface idForCart: cart) = cartId.! !
+
+!TusLibrosTest methodsFor: 'interactionWithRestInterface' stamp: 'PR 6/26/2017 21:22:28'!
+test20addBooksToCartWithIdShouldAddOnlyThoseBooksToTheCart
+	
+	| interface cartId abook |
+	
+	abook := factory bookOne.
+	interface := factory interfaceWithUsersAndCatalog.
+	
+	cartId := interface createCartWithUser: 'Michael Jackson' pass: 12355.
+	interface addToCartWithId: cartId book: abook occurences: 2.
+	
+	self assert: (((interface listCartWithId: cartId) occurrencesOf: abook) = 2). 
+	self assert: (interface listCartWithId: cartId) size = 2.! !
+
+!TusLibrosTest methodsFor: 'interactionWithRestInterface' stamp: 'PR 6/26/2017 21:56:07'!
+test21
+
+	| interface cartId aBook otherBook  aCard|
+	
+	aBook := factory bookOne.
+	otherBook := factory bookTwo. 
+	interface := factory interfaceWithUsersAndCatalog.
+	aCard := factory card .
+	
+	cartId := interface createCartWithUser: 'Michael Jackson' pass: 12355.
+	interface addToCartWithId: cartId book: aBook occurences: 2 .
+	interface addToCartWithId: cartId book: otherBook  occurences: 1. 
+	
+	interface checkOutWithId: cartId card: aCard .
+	
+	self assert: (interface listPurcharsesWithIdUser: 'Michael Jackson' password: 12355 ) = (interface listCartWithId: cartId ).
+	
+	
+	
+	
+
+	! !
 
 
 !classDefinition: #Card category: #'Tus-Libros-Solution'!
@@ -279,7 +352,7 @@ initializeWithNumber: anInteger expirationDate: aDate owner: aString
 	owner := aString.! !
 
 
-!Card methodsFor: 'inspecting' stamp: 'PR 6/25/2017 19:54:43'!
+!Card methodsFor: 'inspecting' stamp: 'PR 6/26/2017 18:33:15'!
 hasValidNumber
 	^number printString size = 16.! !
 
@@ -398,7 +471,7 @@ sales
 	^salesBook copy! !
 
 
-!Cashier methodsFor: 'evaluating' stamp: 'PR 6/25/2017 19:55:41'!
+!Cashier methodsFor: 'evaluating' stamp: 'PR 6/26/2017 21:36:43'!
 checkout: aCart with: aCard
 	| ticket |
 	
@@ -412,6 +485,7 @@ checkout: aCart with: aCard
 	merchantProcessor debit: ticket from: aCard.
 	
 	salesBook add: ticket.
+	
 	^ticket.! !
 
 
@@ -515,14 +589,22 @@ catalog
 	
 	^books.! !
 
+!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/26/2017 19:40:58'!
+interfaceWithUsersAndCatalog
+ ^TusLibrosRestInterface newWithUsers: self users catalog: self catalog .! !
+
 !TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/22/2017 22:54:08'!
 salesBook
 	^OrderedCollection new.! !
 
-!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'Mirko 6/26/2017 16:24:33'!
-tusLibrosRestInterfaceNoUser
-
-^TusLibrosRestInterface new initializeWithUsers: Dictionary new ids: OrderedCollection new.! !
+!TusLibrosFactory methodsFor: 'as yet unclassified' stamp: 'PR 6/26/2017 18:36:06'!
+users
+	| users |
+	users := Dictionary new.
+	users at: 'Michael Jackson' put: 12355.
+	
+	^users.
+	! !
 
 
 !TusLibrosFactory methodsFor: 'books' stamp: 'Mirko 6/26/2017 14:21:22'!
@@ -589,28 +671,75 @@ merchantProcessorWithInsufficientFounds
 merchantProcessorWithStolenCard
 	^MerchantProcessorStub executeOnDebitFrom: [ :anAmount :aCard | self error: MerchantProcessor stolenCardError ]! !
 
+
+!TusLibrosFactory methodsFor: 'user interface' stamp: 'PR 6/26/2017 20:26:41'!
+interfaceWithNoUsers
+
+^TusLibrosRestInterface newWithUsers: Dictionary new catalog: self catalog.! !
+
+!TusLibrosFactory methodsFor: 'user interface' stamp: 'PR 6/26/2017 20:27:03'!
+interfaceWithUsers
+	^TusLibrosRestInterface newWithUsers: self users catalog: self catalog.! !
+
 
 !classDefinition: #TusLibrosRestInterface category: #'Tus-Libros-Solution'!
 Object subclass: #TusLibrosRestInterface
-	instanceVariableNames: 'users idsCarts'
+	instanceVariableNames: 'users carts catalog merchantProcessor'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Tus-Libros-Solution'!
 
-!TusLibrosRestInterface methodsFor: 'as yet unclassified' stamp: 'Mirko 6/26/2017 16:55:32'!
-createCart: aString pass: aSmallInteger 
+!TusLibrosRestInterface methodsFor: 'inspecting' stamp: 'PR 6/26/2017 19:07:52'!
+cartWithId: cartId
+
+	^carts at: cartId.! !
+
+!TusLibrosRestInterface methodsFor: 'inspecting' stamp: 'PR 6/26/2017 19:06:38'!
+carts
+	^carts copy.! !
+
+
+!TusLibrosRestInterface methodsFor: 'initialization' stamp: 'PR 6/26/2017 21:54:54'!
+initializeWithUsers: anUsersDictionary catalog: anCatalog
+	users := anUsersDictionary.
+	catalog := anCatalog .
+	carts := Dictionary new.
+	! !
+
+
+!TusLibrosRestInterface methodsFor: 'interface' stamp: 'PR 6/26/2017 19:34:30'!
+createCartWithUser: anUserString pass: aPasswordNumber 
+
+
+	(users includesKey: anUserString )
+		ifFalse: [self error: TusLibrosRestInterface invalidUserError.].
 	
-	(users includesKey: aString )ifFalse:[self error: TusLibrosRestInterface  cannotCreateACartNotuserError.]
+	(users at: anUserString) = aPasswordNumber
+		ifFalse: [self error: TusLibrosRestInterface invalidPasswordError. ].
+		
+	 carts at: carts size + 1 put: (Cart newWithCatalog: catalog).	
+	
+	^ carts size
 ! !
 
-!TusLibrosRestInterface methodsFor: 'as yet unclassified' stamp: 'Mirko 6/26/2017 16:59:36'!
-idsCarts
-	^idsCarts copy.! !
 
-!TusLibrosRestInterface methodsFor: 'as yet unclassified' stamp: 'Mirko 6/26/2017 16:25:11'!
-initializeWithUsers: aDictionary ids: anOrderedCollection 
-	users := aDictionary.
-	idsCarts := anOrderedCollection .! !
+!TusLibrosRestInterface methodsFor: 'as yet unclassified' stamp: 'PR 6/26/2017 20:31:39'!
+addToCartWithId: cartId book: aBook occurences: aNumber
+	(self carts at: cartId) add: aBook withOccurrences: aNumber.
+
+ 	! !
+
+!TusLibrosRestInterface methodsFor: 'as yet unclassified' stamp: 'PR 6/26/2017 21:46:43'!
+checkOutWithId: aSmallInteger card: aCard 
+	self shouldBeImplemented! !
+
+!TusLibrosRestInterface methodsFor: 'as yet unclassified' stamp: 'PR 6/26/2017 20:19:16'!
+idForCart: aCart 
+	^carts keyAtValue: aCart.! !
+
+!TusLibrosRestInterface methodsFor: 'as yet unclassified' stamp: 'PR 6/26/2017 20:57:36'!
+listCartWithId: aCartId
+	^(self carts at: aCartId ) contents.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -618,6 +747,14 @@ initializeWithUsers: aDictionary ids: anOrderedCollection
 TusLibrosRestInterface class
 	instanceVariableNames: ''!
 
-!TusLibrosRestInterface class methodsFor: 'as yet unclassified' stamp: 'Mirko 6/26/2017 16:54:00'!
-cannotCreateACartNotuserError
-	^'You are not a user, can not create a cart'! !
+!TusLibrosRestInterface class methodsFor: 'as yet unclassified' stamp: 'PR 6/26/2017 18:39:33'!
+invalidPasswordError
+	^'Invalid password for user'.! !
+
+!TusLibrosRestInterface class methodsFor: 'as yet unclassified' stamp: 'PR 6/26/2017 18:09:55'!
+invalidUserError
+	^'User not registered, out of bounds'! !
+
+!TusLibrosRestInterface class methodsFor: 'as yet unclassified' stamp: 'PR 6/26/2017 21:55:34'!
+newWithUsers: anUsersDictionary catalog: aCatalog
+	^self new initializeWithUsers: anUsersDictionary catalog: aCatalog.! !
