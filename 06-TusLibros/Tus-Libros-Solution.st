@@ -313,7 +313,7 @@ test20differentUsersShouldHaveDifferentCartsWithDifferentIds
 	self deny: cartId = anotherCartId.
 	self deny:( interface cartWithId: cartId) = (interface cartWithId: anotherCartId).! !
 
-!TusLibrosTest methodsFor: 'interactionWithRestInterface' stamp: 'PR 6/27/2017 01:47:33'!
+!TusLibrosTest methodsFor: 'interactionWithRestInterface' stamp: 'PR 6/27/2017 18:15:23'!
 test21addBooksToCartWithIdShouldAddOnlyThoseBooksToTheCart
 	
 	| interface cartId abook |
@@ -324,8 +324,8 @@ test21addBooksToCartWithIdShouldAddOnlyThoseBooksToTheCart
 	
 	interface addToCartWithId: cartId book: abook occurences: 2.
 	
-	self assert: (((interface listCartWithId: cartId) occurrencesOf: abook) = 2). 
-	self assert: (interface listCartWithId: cartId) size = 2.! !
+	self assert: (((interface cartWithId: cartId) occurrencesOf: abook) = 2). 
+	self assert: (interface cartWithId: cartId) size = 2.! !
 
 !TusLibrosTest methodsFor: 'interactionWithRestInterface' stamp: 'PR 6/27/2017 02:31:39'!
 test22checkoutCartShouldAddToListOfPurchases
@@ -350,33 +350,33 @@ test22checkoutCartShouldAddToListOfPurchases
 	
 	"Quizas se deberia contar dinamicamente el total, en vez de tenerlo hardcodeado"! !
 
-!TusLibrosTest methodsFor: 'interactionWithRestInterface' stamp: 'Mirko 6/27/2017 13:36:00'!
+!TusLibrosTest methodsFor: 'interactionWithRestInterface' stamp: 'PR 6/27/2017 17:06:21'!
 test23checkoutSeveralCartsWithSameUserShouldHaveAddedInListOfPurchases
 
 
-	| interface cartId aBook otherBook  aCard purchases cartIdTwo contentAux |
+	| interface cartId aBook otherBook  aCard purchases cartIdTwo testCart |
 	
 	aBook := factory bookOne.
 	otherBook := factory bookTwo. 
 	interface := factory interface.
 	aCard := factory card .
+	
 	cartId := interface createCartWithUser: 1 pass: 12355.
 	interface addToCartWithId: cartId book: aBook occurences: 2 .
-	
 	interface checkout: cartId card: aCard .
 	
-	cartIdTwo := interface createCartWithUser: 1 pass: 12355. 	
+	cartIdTwo := interface createCartWithUser: 1 pass: 12355.
+	interface addToCartWithId: cartIdTwo book: aBook  occurences: 1.	
 	interface addToCartWithId: cartIdTwo book: otherBook  occurences: 1.
- 
 	interface checkout: cartIdTwo card: aCard .
 	
-	contentAux := Set new.
-	contentAux add: factory bookOne .
-	contentAux add: factory bookTwo . 
+	testCart := factory cart.
+	testCart add: aBook withOccurrences: 3.
+	testCart add: otherBook withOccurrences: 1.
 	
 	purchases := interface listPurcharsesForUser: 1 password: 12355.
-	self assert: (purchases at: 'total') = 5.
-	self assert: (purchases at: 'content') = contentAux .
+	self assert: (purchases at: 'total') = 7.
+	self assert: (purchases at: 'content') = testCart contents.
 	
 	
 	! !
@@ -540,9 +540,9 @@ initializeWithPriceList: aPriceList withToday: aDate withSalesBook: anOrderedCol
 	merchantProcessor := aMerchantProcessor.! !
 
 
-!Cashier methodsFor: 'private' stamp: 'PR 6/22/2017 22:37:11'!
-sales
-	^salesBook copy! !
+!Cashier methodsFor: 'private' stamp: 'PR 6/15/2017 19:45:57'!
+price: aBook
+	^priceList at: aBook.! !
 
 
 !Cashier methodsFor: 'evaluating' stamp: 'PR 6/26/2017 21:36:43'!
@@ -563,9 +563,9 @@ checkout: aCart with: aCard
 	^ticket.! !
 
 
-!Cashier methodsFor: 'inspecting' stamp: 'PR 6/15/2017 19:45:57'!
-price: aBook
-	^priceList at: aBook.! !
+!Cashier methodsFor: 'testing' stamp: 'PR 6/22/2017 22:37:11'!
+sales
+	^salesBook copy! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -700,24 +700,24 @@ cashierWithMerchantProcessor: aMerchantProcessor
 	^Cashier newWithPriceList: self catalog withToday: Date today withSalesBook: self salesBook withMerchantProcessor: aMerchantProcessor.! !
 
 
-!TusLibrosFactory methodsFor: 'merchantProcessor' stamp: 'PR 6/25/2017 19:00:55'!
+!TusLibrosFactory methodsFor: 'merchant' stamp: 'PR 6/25/2017 19:00:55'!
 emptyMerchantProcessor
 	^MerchantProcessorStub executeOnDebitFrom: [ :anAmount :aCard ].! !
 
-!TusLibrosFactory methodsFor: 'merchantProcessor' stamp: 'Mirko 6/26/2017 14:04:13'!
+!TusLibrosFactory methodsFor: 'merchant' stamp: 'Mirko 6/26/2017 14:04:13'!
 merchantProcessorWithInsufficientFounds
 	^MerchantProcessorStub  executeOnDebitFrom: [:anAmount :aCard | self error: MerchantProcessor insufficientFoundsCardError.]! !
 
-!TusLibrosFactory methodsFor: 'merchantProcessor' stamp: 'PR 6/25/2017 19:00:08'!
+!TusLibrosFactory methodsFor: 'merchant' stamp: 'PR 6/25/2017 19:00:08'!
 merchantProcessorWithStolenCard
 	^MerchantProcessorStub executeOnDebitFrom: [ :anAmount :aCard | self error: MerchantProcessor stolenCardError ]! !
 
 
-!TusLibrosFactory methodsFor: 'user interface' stamp: 'PR 6/26/2017 23:19:19'!
+!TusLibrosFactory methodsFor: 'rest interface' stamp: 'PR 6/26/2017 23:19:19'!
 interface
 	^TusLibrosRestInterface newWithUsers: self users catalog: self catalog merchantProcessor: self emptyMerchantProcessor .! !
 
-!TusLibrosFactory methodsFor: 'user interface' stamp: 'PR 6/26/2017 23:19:27'!
+!TusLibrosFactory methodsFor: 'rest interface' stamp: 'PR 6/26/2017 23:19:27'!
 interfaceWithNoUsers
 	^TusLibrosRestInterface newWithUsers: Dictionary new catalog: self catalog merchantProcessor: self emptyMerchantProcessor .! !
 
@@ -777,30 +777,33 @@ addToCartWithId: cartId book: aBook occurences: aNumber
 
  	! !
 
-!TusLibrosRestInterface methodsFor: 'interface' stamp: 'Mirko 6/27/2017 14:10:13'!
+!TusLibrosRestInterface methodsFor: 'interface' stamp: 'PR 6/27/2017 18:22:43'!
 checkout: aCartId card: aCard
 	
-	| cart total ticket  previousPurchases previousListPurchases previousTotalPurchases |
+	| cart total ticket |
 	
 	cart := self cartWithId: aCartId.
 	total := cashier checkout: cart with: aCard.
-	(purchases includesKey: aCartId )ifTrue: [
-	previousPurchases:= self purchasesForUser: aCartId. 
-	
-	previousListPurchases := previousPurchases at: 'content'.
-	previousTotalPurchases := previousPurchases at: 'total'.
 	
 	ticket := Dictionary new.
-	ticket at: 'content' put: (cart contents union: previousListPurchases) .
-	ticket at: 'total' put: total + previousTotalPurchases .
+	ticket at: 'content' put:cart contents.
+	ticket at: 'total' put: total.
 	
-	purchases at: aCartId put: ticket.]
+	(purchases includesKey: aCartId ) ifTrue: [ 
+		
+		| newContent newTotal previousPurchases|
 	
-	ifFalse: [	ticket := Dictionary new.
-	ticket at: 'content' put:cart contents   .
-	ticket at: 'total' put: total .
+		previousPurchases := self purchasesForUser: aCartId. 
+		newContent := previousPurchases at: 'content'.
+		newTotal := (previousPurchases at: 'total') + total.
 	
-	purchases at: aCartId put: ticket.]
+		cart contents contents associationsDo: [ :each | newContent add: each key withOccurrences: each value].
+	
+		ticket at: 'content' put: newContent .
+		ticket at: 'total' put: newTotal .
+	].
+
+	purchases at: aCartId put: ticket.
 
 		! !
 
@@ -813,10 +816,6 @@ createCartWithUser: userId pass: aPasswordNumber
 
 	^userId.
 ! !
-
-!TusLibrosRestInterface methodsFor: 'interface' stamp: 'PR 6/27/2017 02:10:29'!
-listCartWithId: aCartId
-	^(usersCarts at: aCartId) contents.! !
 
 !TusLibrosRestInterface methodsFor: 'interface' stamp: 'PR 6/27/2017 02:21:23'!
 listPurcharsesForUser: userId password: aPasswordNumber 
